@@ -18,7 +18,7 @@ public class Main {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 
 		boolean isPartOne = false;
-		final List<MatchModel> matchModels = StrategyReaderService.readMatchesFromStrategyPaper("/riddle-input/riddle-2.txt", isPartOne);
+		final List<MatchModel> matchModels = StrategyReaderService.readMatchesFromStrategyPaper("riddle-2.txt", isPartOne);
 
 		int totalPoints = 0;
 		for (MatchModel matchModel : matchModels) {

@@ -17,7 +17,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		ElvesWithFoodReader elvesWithFoodReader = new ElvesWithFoodReader();
-		final List<Elf> elves = elvesWithFoodReader.readFoodCarriedByElfes("/riddle-input/riddle-1.txt");
+		final List<Elf> elves = elvesWithFoodReader.readFoodCarriedByElfes("riddle-1.txt");
 
 		final Elf elfWithMostFood = elves.get(0);
 		System.out.println("The elf carrying the largest amount of calories is '" + elfWithMostFood.getName() + "'.\n"

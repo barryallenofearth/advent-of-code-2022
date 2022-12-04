@@ -2,12 +2,10 @@ package de.barryallenofearth.adventofcode2022.riddle.a.foodorder.service;
 
 import de.barryallenofearth.adventofcode2022.riddle.a.foodorder.model.Elf;
 import de.barryallenofearth.adventofcode2022.riddle.a.foodorder.model.Food;
-import org.apache.commons.io.FileUtils;
+import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +30,7 @@ public class ElvesWithFoodReader {
 	}
 
 	private List<Elf> readUnsortedElfList(String fileName) throws IOException, URISyntaxException {
-		final List<String> elfCaloriesEntries = FileUtils.readLines(new File(getClass().getResource(fileName).toURI()), StandardCharsets.UTF_8);
+		final List<String> elfCaloriesEntries = RiddleFileReader.readAllLines(fileName);
 
 		List<Elf> elvesWithFood = new ArrayList<>();
 

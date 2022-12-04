@@ -3,6 +3,7 @@ package de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.service
 import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.MatchModel;
 import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.RockPaperScissorOption;
 import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.MatchResultType;
+import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -21,7 +22,7 @@ public class StrategyReaderService {
 	 * @return MatchModels containing the chosen options by your opponent and you
 	 */
 	public static List<MatchModel> readMatchesFromStrategyPaper(String fileName, boolean isPartOne) throws URISyntaxException, IOException {
-		final List<String> allStrategyEntries = FileUtils.readLines(new File(StrategyReaderService.class.getResource(fileName).toURI()), StandardCharsets.UTF_8);
+		final List<String> allStrategyEntries = RiddleFileReader.readAllLines(fileName);
 
 		List<MatchModel> matchModels = new ArrayList<>();
 
