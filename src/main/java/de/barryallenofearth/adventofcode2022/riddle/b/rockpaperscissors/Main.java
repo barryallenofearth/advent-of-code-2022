@@ -1,8 +1,8 @@
-package de.barryallenofearth.adventofcode2022.riddle.two;
+package de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors;
 
-import de.barryallenofearth.adventofcode2022.riddle.two.model.MatchModel;
-import de.barryallenofearth.adventofcode2022.riddle.two.service.MatchResultService;
-import de.barryallenofearth.adventofcode2022.riddle.two.service.StrategyReaderService;
+import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.MatchModel;
+import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.service.MatchResultService;
+import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.service.StrategyReaderService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

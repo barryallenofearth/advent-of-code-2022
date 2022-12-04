@@ -1,8 +1,8 @@
-package de.barryallenofearth.adventofcode2022.riddle.two.service;
+package de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.service;
 
-import de.barryallenofearth.adventofcode2022.riddle.two.model.MatchModel;
-import de.barryallenofearth.adventofcode2022.riddle.two.model.MatchResultType;
-import de.barryallenofearth.adventofcode2022.riddle.two.model.RockPaperScissorOption;
+import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.MatchModel;
+import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.RockPaperScissorOption;
+import de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model.MatchResultType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

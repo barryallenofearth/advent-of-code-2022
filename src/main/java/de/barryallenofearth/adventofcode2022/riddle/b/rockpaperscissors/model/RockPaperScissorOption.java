@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.two.model;
+package de.barryallenofearth.adventofcode2022.riddle.b.rockpaperscissors.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
