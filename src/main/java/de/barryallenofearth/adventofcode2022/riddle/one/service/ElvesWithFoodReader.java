@@ -1,7 +1,7 @@
-package de.barryallenofearth.adventofcode2022.riddle.foodorder.service;
+package de.barryallenofearth.adventofcode2022.riddle.one.service;
 
-import de.barryallenofearth.adventofcode2022.riddle.foodorder.model.Elf;
-import de.barryallenofearth.adventofcode2022.riddle.foodorder.model.Food;
+import de.barryallenofearth.adventofcode2022.riddle.one.model.Elf;
+import de.barryallenofearth.adventofcode2022.riddle.one.model.Food;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

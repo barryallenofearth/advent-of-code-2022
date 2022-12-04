@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.foodorder.model;
+package de.barryallenofearth.adventofcode2022.riddle.one.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

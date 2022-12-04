@@ -1,7 +1,7 @@
-package de.barryallenofearth.adventofcode2022.riddle.foodorder;
+package de.barryallenofearth.adventofcode2022.riddle.one;
 
-import de.barryallenofearth.adventofcode2022.riddle.foodorder.model.Elf;
-import de.barryallenofearth.adventofcode2022.riddle.foodorder.service.ElvesWithFoodReader;
+import de.barryallenofearth.adventofcode2022.riddle.one.model.Elf;
+import de.barryallenofearth.adventofcode2022.riddle.one.service.ElvesWithFoodReader;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
