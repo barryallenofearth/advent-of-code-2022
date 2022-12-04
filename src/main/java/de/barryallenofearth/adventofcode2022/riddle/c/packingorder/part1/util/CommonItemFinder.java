@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.c.packingorder.util;
+package de.barryallenofearth.adventofcode2022.riddle.c.packingorder.part1.util;
 
 import de.barryallenofearth.adventofcode2022.riddle.c.packingorder.model.Rucksack;
 
