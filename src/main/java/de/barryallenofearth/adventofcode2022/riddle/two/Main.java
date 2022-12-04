@@ -17,14 +17,15 @@ public class Main {
 
 	public static void main(String[] args) throws IOException, URISyntaxException {
 
-		final List<MatchModel> matchModels = StrategyReaderService.readMatchesFromStrategyPaper("/riddle-input/riddle-2.txt");
+		boolean isPartOne = false;
+		final List<MatchModel> matchModels = StrategyReaderService.readMatchesFromStrategyPaper("/riddle-input/riddle-2.txt", isPartOne);
 
 		int totalPoints = 0;
 		for (MatchModel matchModel : matchModels) {
 			MatchResultService.calculatePlayerScore(matchModel);
 			totalPoints += matchModel.getScoreOwn();
 		}
-		System.out.println("You scored "+ totalPoints + " points in "+ matchModels.size() + " games.");
+		System.out.println("You scored " + totalPoints + " points in " + matchModels.size() + " games.");
 
 	}
 }
