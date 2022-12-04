@@ -7,6 +7,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+
+/**
+ * Answer to riddle:
+ * https://adventofcode.com/2022/day/1
+ *
+ */
 public class Main {
 
 	public static void main(String[] args) throws IOException, URISyntaxException {
