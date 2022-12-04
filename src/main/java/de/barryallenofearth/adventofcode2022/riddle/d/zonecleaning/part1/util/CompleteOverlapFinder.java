@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.d.zonecleaning.part1;
+package de.barryallenofearth.adventofcode2022.riddle.d.zonecleaning.part1.util;
 
 import de.barryallenofearth.adventofcode2022.riddle.d.zonecleaning.common.model.PairedZoneAssignment;
 
