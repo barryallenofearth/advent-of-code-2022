@@ -1,7 +1,7 @@
 package de.barryallenofearth.adventofcode2022.riddle.e.stacks.part1;
 
 import de.barryallenofearth.adventofcode2022.riddle.e.stacks.common.model.CommandModel;
-import de.barryallenofearth.adventofcode2022.riddle.e.stacks.common.util.CommandExecuter;
+import de.barryallenofearth.adventofcode2022.riddle.e.stacks.part1.util.CommandExecuter;
 import de.barryallenofearth.adventofcode2022.riddle.e.stacks.common.util.InstructionsReader;
 import de.barryallenofearth.adventofcode2022.riddle.e.stacks.common.util.StackReader;
 
@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Stack;
 
-public class Main {
+public class Main_5_1 {
 
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		final List<Stack<String>> stacks = StackReader.readStacks("riddle-5.txt");

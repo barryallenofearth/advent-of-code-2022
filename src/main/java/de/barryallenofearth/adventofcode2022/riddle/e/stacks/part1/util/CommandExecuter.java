@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.e.stacks.common.util;
+package de.barryallenofearth.adventofcode2022.riddle.e.stacks.part1.util;
 
 import de.barryallenofearth.adventofcode2022.riddle.e.stacks.common.model.CommandModel;
 
