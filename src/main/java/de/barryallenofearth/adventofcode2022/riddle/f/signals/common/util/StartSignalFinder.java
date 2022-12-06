@@ -7,20 +7,19 @@ import java.util.Set;
 
 public class StartSignalFinder {
 
-    public static List<Integer> findNumberOfReadSymbolToEndOfStartSequence(List<String> signals) {
+    public static List<Integer> findNumberOfReadSymbolToEndOfStartSequence(List<String> signals, int numberOfDistinctSymbols) {
         final List<Integer> numberOfReadSymbolsToEndOfSequence = new ArrayList<>();
         for (String signal : signals) {
             Set<Character> currentSequence = new HashSet<>();
             int index = 0;
-            while (currentSequence.size() < 4 || index == signal.length()) {
+            while (currentSequence.size() < numberOfDistinctSymbols || index == signal.length()) {
                 currentSequence.clear();
-                currentSequence.add(signal.charAt(index));
-                currentSequence.add(signal.charAt(index + 1));
-                currentSequence.add(signal.charAt(index + 2));
-                currentSequence.add(signal.charAt(index + 3));
+                for (int count = 0; count < numberOfDistinctSymbols; count++) {
+                    currentSequence.add(signal.charAt(index + count));
+                }
                 index++;
             }
-            numberOfReadSymbolsToEndOfSequence.add(index + 3);
+            numberOfReadSymbolsToEndOfSequence.add(index + numberOfDistinctSymbols - 1);
         }
         return numberOfReadSymbolsToEndOfSequence;
     }
