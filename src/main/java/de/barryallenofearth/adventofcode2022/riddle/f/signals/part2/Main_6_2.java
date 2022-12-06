@@ -13,7 +13,7 @@ public class Main_6_2 {
         final List<String> strings = RiddleFileReader.readAllLines("riddle-6.txt");
         final List<Integer> numberOfReadSymbolToEndOfStartSequence = StartSignalFinder.findNumberOfReadSymbolToEndOfStartSequence(strings, 14);
         for (Integer integer : numberOfReadSymbolToEndOfStartSequence) {
-            System.out.println(integer);
+            System.out.println(integer + " symbols need to be read to processed the currents signal first message start sequence");
         }
 
     }
