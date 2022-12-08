@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.h.treehouse.common;
+package de.barryallenofearth.adventofcode2022.riddle.h.treehouse.part1.util;
 
 import de.barryallenofearth.adventofcode2022.riddle.h.treehouse.Coordinates;
 
