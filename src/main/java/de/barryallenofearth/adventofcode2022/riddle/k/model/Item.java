@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Item {
-    private int worryLevel;
+    private long worryLevel;
 }

@@ -64,13 +64,13 @@ public class ReadInitialMonkeyList {
                 if (firstSymbol.equals(OLD) && secondSymbol.equals(OLD)) {
                     return item -> item.setWorryLevel(item.getWorryLevel() * item.getWorryLevel());
                 } else if (firstSymbol.equals(OLD) && secondSymbol.matches("\\d+")) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() * Integer.parseInt(secondSymbol));
+                    return item -> item.setWorryLevel(item.getWorryLevel() * Long.parseLong(secondSymbol));
                 }
             } else if (operator.equals("+")) {
                 if (firstSymbol.equals(OLD) && secondSymbol.equals(OLD)) {
                     return item -> item.setWorryLevel(item.getWorryLevel() + item.getWorryLevel());
                 } else if (firstSymbol.equals(OLD) && secondSymbol.matches("\\d+")) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() + Integer.parseInt(secondSymbol));
+                    return item -> item.setWorryLevel(item.getWorryLevel() + Long.parseLong(secondSymbol));
                 }
             }
         }
