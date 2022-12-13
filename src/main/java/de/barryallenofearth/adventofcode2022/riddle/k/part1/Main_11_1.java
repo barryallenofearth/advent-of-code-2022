@@ -19,8 +19,9 @@ public class Main_11_1 {
         }
         monkeys.sort(Comparator.comparingInt(Monkey::getItemsInspected).reversed());
 
-        System.out.println("Monkey " + monkeys.get(0).getMonkeyIndex() + ": " + monkeys.get(0).getItemsInspected());
-        System.out.println("Monkey " + monkeys.get(1).getMonkeyIndex() + ": " + monkeys.get(1).getItemsInspected());
+        for (Monkey monkey : monkeys) {
+            System.out.println("Monkey " + monkey.getMonkeyIndex() + ": " + monkey.getItemsInspected());
+        }
         System.out.println("monkey business: " + monkeys.get(0).getItemsInspected() * monkeys.get(1).getItemsInspected());
     }
 }
