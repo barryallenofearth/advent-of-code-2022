@@ -9,12 +9,8 @@ public class HandleMonkeyAction {
 
     public static void handleInspection(List<Monkey> monkeys, int monkeyIndex) {
         final Monkey monkey = monkeys.get(monkeyIndex);
-        final int initialSize = monkey.getItems().size();
-        for (int index = 0; index < initialSize; index++) {
+        while (monkey.getItems().size() > 0) {
             final Item item = monkey.getItems().poll();
-            if (item == null) {
-                break;
-            }
             monkey.getOperation().accept(item);
             monkey.setItemsInspected(monkey.getItemsInspected() + 1);
 

@@ -54,7 +54,6 @@ public class ReadInitialMonkeyList {
     }
 
     public static Consumer<Item> parseWorryLevelOperation(String string) {
-        //TODO
         final Matcher matcher = OPERATION_PATTERN.matcher(string);
         if (matcher.matches()) {
             final String firstSymbol = matcher.group(1);
@@ -66,16 +65,12 @@ public class ReadInitialMonkeyList {
                     return item -> item.setWorryLevel(item.getWorryLevel() * item.getWorryLevel());
                 } else if (firstSymbol.equals(OLD) && secondSymbol.matches("\\d+")) {
                     return item -> item.setWorryLevel(item.getWorryLevel() * Integer.parseInt(secondSymbol));
-                } else if (secondSymbol.equals(OLD) && firstSymbol.matches("\\d+")) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() * Integer.parseInt(firstSymbol));
                 }
-            } else {
+            } else if (operator.equals("+")) {
                 if (firstSymbol.equals(OLD) && secondSymbol.equals(OLD)) {
                     return item -> item.setWorryLevel(item.getWorryLevel() + item.getWorryLevel());
                 } else if (firstSymbol.equals(OLD) && secondSymbol.matches("\\d+")) {
                     return item -> item.setWorryLevel(item.getWorryLevel() + Integer.parseInt(secondSymbol));
-                } else if (secondSymbol.equals(OLD) && firstSymbol.matches("\\d+")) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() + Integer.parseInt(firstSymbol));
                 }
             }
         }

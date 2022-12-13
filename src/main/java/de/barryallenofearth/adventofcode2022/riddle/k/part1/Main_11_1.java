@@ -12,6 +12,7 @@ import java.util.List;
 public class Main_11_1 {
     public static void main(String[] args) throws IOException, URISyntaxException {
         final List<Monkey> monkeys = ReadInitialMonkeyList.readMonkeys();
+        System.out.println("Total items on the move: " + monkeys.stream().mapToInt((Monkey monkey) -> monkey.getItems().size()).sum());
         for (int round = 0; round < 20; round++) {
             for (int index = 0; index < monkeys.size(); index++) {
                 HandleMonkeyAction.handleInspection(monkeys, index);
@@ -22,6 +23,8 @@ public class Main_11_1 {
         for (Monkey monkey : monkeys) {
             System.out.println("Monkey " + monkey.getMonkeyIndex() + ": " + monkey.getItemsInspected());
         }
+        System.out.println("Total items inspected: " + monkeys.stream().mapToInt(Monkey::getItemsInspected).sum());
+
         System.out.println("monkey business: " + monkeys.get(0).getItemsInspected() * monkeys.get(1).getItemsInspected());
     }
 }
