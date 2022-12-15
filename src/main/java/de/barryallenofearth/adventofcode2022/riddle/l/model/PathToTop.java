@@ -4,36 +4,50 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 @Getter
 @EqualsAndHashCode
 @ToString
 public class PathToTop {
 
-	public PathToTop(int stepCount, Set<Coordinates> fieldsAlreadyVisited, List<String> movement) {
-		this.stepCount = stepCount;
-		this.fieldsAlreadyVisited = fieldsAlreadyVisited;
-		this.movement = movement;
-	}
+    public PathToTop(Coordinates startingPosition, Coordinates targetPosition) {
+        this.targetPosition = targetPosition;
+        setCurrentPosition(startingPosition);
+    }
 
-	private int stepCount;
+    private int stepCount = -1;
 
-	private final Set<Coordinates> fieldsAlreadyVisited;
+    private final Coordinates targetPosition;
 
-	private final List<String> movement;
+    private final Stack<Coordinates> fieldsAlreadyVisited = new Stack<>();
 
-	private Coordinates currentPosition;
+    private final Set<Coordinates> deadEnds = new HashSet<>();
 
-	private boolean isComplete;
+    private Coordinates currentPosition;
 
-	public void setCurrentPosition(Coordinates currentPosition, Coordinates targetPosition) {
-		this.currentPosition = currentPosition;
-		fieldsAlreadyVisited.add(currentPosition);
-		isComplete = targetPosition.equals(currentPosition);
-		if (!isComplete) {
-			this.stepCount++;
-		}
-	}
+    private Coordinates lastPositionWhileMovingBackwards;
+
+    private boolean isComplete;
+
+    public void setCurrentPosition(Coordinates currentPosition) {
+        this.currentPosition = currentPosition;
+        fieldsAlreadyVisited.add(currentPosition);
+        isComplete = targetPosition.equals(currentPosition);
+        lastPositionWhileMovingBackwards = null;
+        this.stepCount++;
+    }
+
+    public void goBack() {
+        final Coordinates coordinates = fieldsAlreadyVisited.pop();
+        this.deadEnds.add(coordinates);
+        this.lastPositionWhileMovingBackwards = this.currentPosition;
+        this.currentPosition = coordinates;
+        this.isComplete = false;
+
+        stepCount--;
+    }
+
 }
