@@ -1,8 +1,8 @@
 package de.barryallenofearth.adventofcode2022.riddle.k.part1;
 
-import de.barryallenofearth.adventofcode2022.riddle.k.common.HandleMonkeyAction;
-import de.barryallenofearth.adventofcode2022.riddle.k.common.ReadInitialMonkeyList;
-import de.barryallenofearth.adventofcode2022.riddle.k.model.Monkey;
+import de.barryallenofearth.adventofcode2022.riddle.k.part1.common.HandleMonkeyAction;
+import de.barryallenofearth.adventofcode2022.riddle.k.part1.common.ReadInitialMonkeyList;
+import de.barryallenofearth.adventofcode2022.riddle.k.part1.model.Monkey;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

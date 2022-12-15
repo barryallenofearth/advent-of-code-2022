@@ -1,7 +1,7 @@
-package de.barryallenofearth.adventofcode2022.riddle.k.common;
+package de.barryallenofearth.adventofcode2022.riddle.k.part1.common;
 
-import de.barryallenofearth.adventofcode2022.riddle.k.model.Item;
-import de.barryallenofearth.adventofcode2022.riddle.k.model.Monkey;
+import de.barryallenofearth.adventofcode2022.riddle.k.part1.model.Item;
+import de.barryallenofearth.adventofcode2022.riddle.k.part1.model.Monkey;
 
 import java.util.List;
 

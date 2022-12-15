@@ -1,10 +1,11 @@
-package de.barryallenofearth.adventofcode2022.riddle.k.common;
+package de.barryallenofearth.adventofcode2022.riddle.k.part2.common;
 
-import de.barryallenofearth.adventofcode2022.riddle.k.model.Item;
-import de.barryallenofearth.adventofcode2022.riddle.k.model.Monkey;
+import de.barryallenofearth.adventofcode2022.riddle.k.part2.model.Item;
+import de.barryallenofearth.adventofcode2022.riddle.k.part2.model.Monkey;
 import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class ReadInitialMonkeyList {
             } else if (string.startsWith(STARTING_ITEMS)) {
                 final String[] split = string.replace(STARTING_ITEMS, "").split(",\\s+");
                 for (String item : split) {
-                    currentMonkey.getItems().add(new Item(Integer.parseInt(item)));
+                    currentMonkey.getItems().add(new Item(BigInteger.valueOf(Integer.parseInt(item))));
                 }
             } else if (string.startsWith(OPERATION)) {
                 currentMonkey.setOperation(parseWorryLevelOperation(string.replace(OPERATION, "")));
@@ -62,15 +63,15 @@ public class ReadInitialMonkeyList {
 
             if (operator.equals("*")) {
                 if (firstSymbol.equals(OLD) && secondSymbol.equals(OLD)) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() * item.getWorryLevel());
+                    return item -> item.setWorryLevel(item.getWorryLevel().multiply(item.getWorryLevel()));
                 } else if (firstSymbol.equals(OLD) && secondSymbol.matches("\\d+")) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() * Long.parseLong(secondSymbol));
+                    return item -> item.setWorryLevel(item.getWorryLevel().multiply(BigInteger.valueOf(Long.parseLong(secondSymbol))));
                 }
             } else if (operator.equals("+")) {
                 if (firstSymbol.equals(OLD) && secondSymbol.equals(OLD)) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() + item.getWorryLevel());
+                    return item -> item.setWorryLevel(item.getWorryLevel().add(item.getWorryLevel()));
                 } else if (firstSymbol.equals(OLD) && secondSymbol.matches("\\d+")) {
-                    return item -> item.setWorryLevel(item.getWorryLevel() + Long.parseLong(secondSymbol));
+                    return item -> item.setWorryLevel(item.getWorryLevel().add(BigInteger.valueOf(Long.parseLong(secondSymbol))));
                 }
             }
         }

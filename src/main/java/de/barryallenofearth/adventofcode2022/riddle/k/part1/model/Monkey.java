@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.k.model;
+package de.barryallenofearth.adventofcode2022.riddle.k.part1.model;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
