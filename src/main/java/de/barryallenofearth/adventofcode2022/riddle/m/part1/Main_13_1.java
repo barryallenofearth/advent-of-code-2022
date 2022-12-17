@@ -14,7 +14,7 @@ public class Main_13_1 {
 		final List<SignalPair> signalPairList = ReadSignalPairs.signalPairList();
 
 		final List<SignalPair> pairsOutOfOrder = PairsInOrderDetector.detectPairsInOrder(signalPairList);
-		System.out.println(pairsOutOfOrder.stream().map(signalPair -> String.valueOf(signalPair.getIndex())).collect(Collectors.joining(",")) + " elements are out of order.");
+		System.out.println(pairsOutOfOrder.stream().map(signalPair -> String.valueOf(signalPair.getIndex())).collect(Collectors.joining(",")) + " elements are in order.");
 		System.out.println(pairsOutOfOrder.stream().mapToInt(SignalPair::getIndex).sum() + " is the sum of the indexes with signals out of order.");
 
 	}
