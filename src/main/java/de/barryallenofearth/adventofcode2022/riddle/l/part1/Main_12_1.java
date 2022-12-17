@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 public class Main_12_1 {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		final HeightJourneyModel heightJourneyModel = HeightMapReader.readHeightMap();
-		PathFinder.findShortestPath(heightJourneyModel);
+		PathFinder.findShortestPath(heightJourneyModel, true);
 
 	}
 }

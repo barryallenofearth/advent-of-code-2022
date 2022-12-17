@@ -7,7 +7,7 @@ import java.util.*;
 
 public class PathFinder {
 
-	public static void findShortestPath(HeightJourneyModel heightJourneyModel) {
+	public static String[][] findShortestPath(HeightJourneyModel heightJourneyModel, boolean useBreakCondition) {
 		final Coordinates startingPosition = heightJourneyModel.getTargetPosition();
 		final Coordinates targetPosition = heightJourneyModel.getStartingPosition();
 
@@ -44,17 +44,19 @@ public class PathFinder {
 				candidatesToExamine.add(furtherOpenNodes);
 			}
 
-			if (closedNodes.contains(targetPosition)) {
+			if (useBreakCondition & closedNodes.contains(targetPosition)) {
 				printPathMap(pathMap);
 				System.out.println("The number of steps required was: " + stepCount);
-				return;
+				return pathMap;
 			}
 			stepCount++;
 		}
 
-		printPathMap(pathMap);
-		System.out.println("No solution was found.");
-		return;
+		if (useBreakCondition) {
+			printPathMap(pathMap);
+			System.out.println("No solution was found.");
+		}
+		return pathMap;
 	}
 
 	private static String createStepSymbol(HeightJourneyModel heightJourneyModel, int stepCount, Coordinates node) {
@@ -98,7 +100,7 @@ public class PathFinder {
 		return !closedNodes.contains(probedCoordinates);
 	}
 
-	private static void printPathMap(String[][] pathMap) {
+	public static void printPathMap(String[][] pathMap) {
 		for (int row = 0; row < pathMap.length; row++) {
 			for (int column = 0; column < pathMap[0].length; column++) {
 				System.out.print(pathMap[row][column]);
