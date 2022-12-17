@@ -18,7 +18,7 @@ public class SignalComponent {
 		this.type = type;
 	}
 
-	private List<SignalComponent> internalSignalComponents = new ArrayList<>();
+	private List<SignalComponent> components = new ArrayList<>();
 
 	private Integer integer;
 

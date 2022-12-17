@@ -16,13 +16,14 @@ public class ReadSignalPairs {
 		List<SignalPair> signalPairList = new ArrayList<>();
 
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-13.txt");
-		SignalPair signalPair = new SignalPair();
+		int pairIndex = 1;
+		SignalPair signalPair = new SignalPair(pairIndex);
 		signalPairList.add(signalPair);
 
 		List<SignalComponent> allListSignalComponents = new ArrayList<>();
 		for (String string : strings) {
 			if (string.trim().isEmpty()) {
-				signalPair = new SignalPair();
+				signalPair = new SignalPair(++pairIndex);
 				signalPairList.add(signalPair);
 			} else if (signalPair.getFirst() == null) {
 				signalPair.setFirst(parseSignal(string, allListSignalComponents));
@@ -52,13 +53,13 @@ public class ReadSignalPairs {
 			if (item.matches("\\d+")) {
 				final SignalComponent number = new SignalComponent(SignalComponent.Type.INTEGER);
 				number.setInteger(Integer.valueOf(item));
-				signalComponent.getInternalSignalComponents().add(number);
+				signalComponent.getComponents().add(number);
 			} else if (!string.isBlank()) {
 				final Optional<SignalComponent> component = allListSignalComponents.stream()
 						.filter(signal -> signal.getUuid().equals(item))
 						.findFirst();
 				if (component.isPresent()) {
-					signalComponent.getInternalSignalComponents().add(component.get());
+					signalComponent.getComponents().add(component.get());
 				}
 			}
 		}
