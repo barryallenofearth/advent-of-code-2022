@@ -8,8 +8,8 @@ import java.util.*;
 public class PathFinder {
 
 	public static void findShortestPath(HeightJourneyModel heightJourneyModel) {
-		final Coordinates startingPosition = heightJourneyModel.getStartingPosition();
-		final Coordinates targetPosition = heightJourneyModel.getTargetPosition();
+		final Coordinates startingPosition = heightJourneyModel.getTargetPosition();
+		final Coordinates targetPosition = heightJourneyModel.getStartingPosition();
 
 		final String[][] pathMap = new String[heightJourneyModel.getHeightMap().length][heightJourneyModel.getHeightMap()[0].length];
 
@@ -92,7 +92,7 @@ public class PathFinder {
 		}
 		int currentHeight = heightMap[currentCoordinates.getRow()][currentCoordinates.getColumn()];
 		int nextHeight = heightMap[probedCoordinates.getRow()][probedCoordinates.getColumn()];
-		if (nextHeight - currentHeight > 1) {
+		if (currentHeight - nextHeight > 1) {
 			return false;
 		}
 		return !closedNodes.contains(probedCoordinates);
