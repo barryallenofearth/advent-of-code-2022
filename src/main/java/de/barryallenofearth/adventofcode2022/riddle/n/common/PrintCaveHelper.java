@@ -12,7 +12,7 @@ public class PrintCaveHelper {
 
 		int xSpan = caveModel.getMaxX() - caveModel.getMinX();
 		for (int column = 0; column <= caveModel.getMaxY() + 2; column++) {
-			for (int row = caveModel.getMinX() - xSpan; row <= caveModel.getMaxX() + 1 + xSpan; row++) {
+			for (int row = caveModel.getMinX() - 2 * xSpan; row <= caveModel.getMaxX() + 1 + 2 * xSpan; row++) {
 				Coordinates currentCoordinates = new Coordinates(row, column);
 				if (currentCoordinates.equals(SAND_START_COORDINATES)) {
 					System.out.print("+");
