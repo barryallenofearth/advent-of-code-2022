@@ -11,6 +11,10 @@ import java.util.Set;
 public class Main_14_1 {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		final CaveModel caveModel = RockCoordinatesReader.readRockCoordinates();
+		printCaveModel(caveModel);
+	}
+
+	private static void printCaveModel(CaveModel caveModel) {
 		for (int row = caveModel.getMinX() - 1; row <= caveModel.getMaxX() + 1; row++) {
 			for (int column = caveModel.getMinY() - 1; column <= caveModel.getMaxY() + 1; column++) {
 				Coordinates currentCoordinates = new Coordinates(row, column);
