@@ -1,7 +1,6 @@
 package de.barryallenofearth.adventofcode2022.riddle.m.part1;
 
 import de.barryallenofearth.adventofcode2022.riddle.m.common.PairsInOrderDetector;
-import de.barryallenofearth.adventofcode2022.riddle.m.common.ReadSignalPairs;
 import de.barryallenofearth.adventofcode2022.riddle.m.model.SignalPair;
 
 import java.io.IOException;

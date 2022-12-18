@@ -1,42 +1,13 @@
 package de.barryallenofearth.adventofcode2022.riddle.m.common;
 
 import de.barryallenofearth.adventofcode2022.riddle.m.model.SignalComponent;
-import de.barryallenofearth.adventofcode2022.riddle.m.model.SignalPair;
-import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ReadSignalPairs {
+public class SignalParser {
 
-	public static List<SignalPair> signalPairList() throws IOException, URISyntaxException {
-		List<SignalPair> signalPairList = new ArrayList<>();
-
-		final List<String> strings = RiddleFileReader.readAllLines("riddle-13.txt");
-		int pairIndex = 1;
-		SignalPair signalPair = new SignalPair(pairIndex);
-		signalPairList.add(signalPair);
-
-		List<SignalComponent> allListSignalComponents = new ArrayList<>();
-		for (String string : strings) {
-			if (string.trim().isEmpty()) {
-				signalPair = new SignalPair(++pairIndex);
-				signalPairList.add(signalPair);
-			} else if (signalPair.getFirst() == null) {
-				signalPair.setOriginalFirst(string);
-				signalPair.setFirst(parseSignal(string, allListSignalComponents));
-			} else {
-				signalPair.setOriginalSecond(string);
-				signalPair.setSecond(parseSignal(string, allListSignalComponents));
-			}
-		}
-		return signalPairList;
-	}
-
-	private static SignalComponent parseSignal(String string, List<SignalComponent> allListSignalComponents) {
+	public static SignalComponent parseSignal(String string, List<SignalComponent> allListSignalComponents) {
 		int indexOfLastOpeningBracket = getIndexOfLastOpeningBracket(string);
 		if (indexOfLastOpeningBracket == 0) {
 			return parseSimpleListSignal(string, allListSignalComponents);
@@ -60,9 +31,7 @@ public class ReadSignalPairs {
 				final Optional<SignalComponent> component = allListSignalComponents.stream()
 						.filter(signal -> signal.getUuid().equals(item))
 						.findFirst();
-				if (component.isPresent()) {
-					signalComponent.getComponents().add(component.get());
-				}
+				component.ifPresent(value -> signalComponent.getComponents().add(value));
 			}
 		}
 		allListSignalComponents.add(signalComponent);

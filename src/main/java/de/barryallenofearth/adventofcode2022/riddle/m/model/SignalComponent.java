@@ -18,6 +18,8 @@ public class SignalComponent {
 		this.type = type;
 	}
 
+	private String originalString;
+
 	private List<SignalComponent> components = new ArrayList<>();
 
 	private Integer integer;
