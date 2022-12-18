@@ -16,6 +16,11 @@ public class PairsInOrderDetector {
 			final Boolean pairInOfOrder = isPairInOrder(signalPair);
 			if (pairInOfOrder == null || pairInOfOrder) {
 				pairsInOrder.add(signalPair);
+				//} else {
+				//System.out.println(signalPair.getIndex());
+				//System.out.println(signalPair.getOriginalFirst());
+				//System.out.println(signalPair.getOriginalSecond());
+				//System.out.println();
 			}
 		}
 
@@ -28,6 +33,9 @@ public class PairsInOrderDetector {
 
 		for (int component = 0; component < first.getComponents().size(); component++) {
 			if (component == second.getComponents().size()) {
+				//System.out.println("Signal is out of order. List length. reach component index: " + component);
+				//System.out.println("First list: " + first);
+				//System.out.println("Second list: " + second);
 				return false;
 			}
 			final SignalComponent currentFirst = first.getComponents().get(component);
@@ -36,7 +44,11 @@ public class PairsInOrderDetector {
 				if (Objects.equals(currentFirst.getInteger(), currentSecond.getInteger())) {
 					continue;
 				}
-				return currentFirst.getInteger() < currentSecond.getInteger();
+				final boolean isInOrder = currentFirst.getInteger() < currentSecond.getInteger();
+				//if (!isInOrder) {
+				//	System.out.println("Signal is out of order. Integers. " + currentFirst.getInteger() + " > " + currentSecond.getInteger());
+				//}
+				return isInOrder;
 			} else if (currentFirst.getType() == SignalComponent.Type.LIST && currentSecond.getType() == SignalComponent.Type.LIST) {
 				final SignalPair newListPair = new SignalPair(signalPair.getIndex());
 				newListPair.setFirst(currentFirst);
@@ -45,6 +57,9 @@ public class PairsInOrderDetector {
 				if (pairInOfOrder == null) {
 					continue;
 				}
+				//if (!pairInOfOrder) {
+				//	System.out.println("Signal is out of order. Integers. " + currentFirst.getInteger() + " > " + currentSecond.getInteger());
+				//}
 				return pairInOfOrder;
 			} else if (currentFirst.getType() == SignalComponent.Type.INTEGER && currentSecond.getType() == SignalComponent.Type.LIST) {
 				final SignalPair newListPair = new SignalPair(signalPair.getIndex());
@@ -70,6 +85,6 @@ public class PairsInOrderDetector {
 				return pairInOfOrder;
 			}
 		}
-		return null;
+		return first.getComponents().size() == second.getComponents().size() ? null : first.getComponents().size() < second.getComponents().size();
 	}
 }

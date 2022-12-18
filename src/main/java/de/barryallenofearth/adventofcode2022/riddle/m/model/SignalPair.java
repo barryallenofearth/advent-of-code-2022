@@ -12,4 +12,8 @@ public class SignalPair {
 	private SignalComponent first;
 
 	private SignalComponent second;
+
+	private String originalFirst;
+
+	private String originalSecond;
 }

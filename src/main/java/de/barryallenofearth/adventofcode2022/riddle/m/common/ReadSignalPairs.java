@@ -26,8 +26,10 @@ public class ReadSignalPairs {
 				signalPair = new SignalPair(++pairIndex);
 				signalPairList.add(signalPair);
 			} else if (signalPair.getFirst() == null) {
+				signalPair.setOriginalFirst(string);
 				signalPair.setFirst(parseSignal(string, allListSignalComponents));
 			} else {
+				signalPair.setOriginalSecond(string);
 				signalPair.setSecond(parseSignal(string, allListSignalComponents));
 			}
 		}
