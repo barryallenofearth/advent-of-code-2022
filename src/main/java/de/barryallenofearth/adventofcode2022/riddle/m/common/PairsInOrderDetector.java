@@ -13,7 +13,7 @@ public class PairsInOrderDetector {
 		List<SignalPair> pairsInOrder = new ArrayList<>();
 
 		for (SignalPair signalPair : signalPairs) {
-			final Boolean pairInOfOrder = isPairInOrder(signalPair);
+			final Boolean pairInOfOrder = isPairInOrder(signalPair.getFirst(), signalPair.getSecond());
 			if (pairInOfOrder == null || pairInOfOrder) {
 				pairsInOrder.add(signalPair);
 				//} else {
@@ -27,9 +27,7 @@ public class PairsInOrderDetector {
 		return pairsInOrder;
 	}
 
-	public static Boolean isPairInOrder(SignalPair signalPair) {
-		final SignalComponent first = signalPair.getFirst();
-		final SignalComponent second = signalPair.getSecond();
+	public static Boolean isPairInOrder(SignalComponent first, SignalComponent second) {
 
 		for (int component = 0; component < first.getComponents().size(); component++) {
 			if (component == second.getComponents().size()) {
@@ -50,10 +48,7 @@ public class PairsInOrderDetector {
 				//}
 				return isInOrder;
 			} else if (currentFirst.getType() == SignalComponent.Type.LIST && currentSecond.getType() == SignalComponent.Type.LIST) {
-				final SignalPair newListPair = new SignalPair(signalPair.getIndex());
-				newListPair.setFirst(currentFirst);
-				newListPair.setSecond(currentSecond);
-				final Boolean pairInOfOrder = isPairInOrder(newListPair);
+				final Boolean pairInOfOrder = isPairInOrder(currentFirst, currentSecond);
 				if (pairInOfOrder == null) {
 					continue;
 				}
@@ -62,23 +57,17 @@ public class PairsInOrderDetector {
 				//}
 				return pairInOfOrder;
 			} else if (currentFirst.getType() == SignalComponent.Type.INTEGER && currentSecond.getType() == SignalComponent.Type.LIST) {
-				final SignalPair newListPair = new SignalPair(signalPair.getIndex());
 				final SignalComponent listComponent = new SignalComponent();
 				listComponent.getComponents().add(currentFirst);
-				newListPair.setFirst(listComponent);
-				newListPair.setSecond(currentSecond);
-				final Boolean pairInOfOrder = isPairInOrder(newListPair);
+				final Boolean pairInOfOrder = isPairInOrder(listComponent, currentSecond);
 				if (pairInOfOrder == null) {
 					continue;
 				}
 				return pairInOfOrder;
 			} else if (currentFirst.getType() == SignalComponent.Type.LIST && currentSecond.getType() == SignalComponent.Type.INTEGER) {
-				final SignalPair newListPair = new SignalPair(signalPair.getIndex());
-				newListPair.setFirst(currentFirst);
 				final SignalComponent listComponent = new SignalComponent();
 				listComponent.getComponents().add(currentSecond);
-				newListPair.setSecond(listComponent);
-				final Boolean pairInOfOrder = isPairInOrder(newListPair);
+				final Boolean pairInOfOrder = isPairInOrder(currentFirst, listComponent);
 				if (pairInOfOrder == null) {
 					continue;
 				}
