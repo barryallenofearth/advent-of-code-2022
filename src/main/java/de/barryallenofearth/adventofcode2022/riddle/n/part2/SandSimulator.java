@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.n.common;
+package de.barryallenofearth.adventofcode2022.riddle.n.part2;
 
 import de.barryallenofearth.adventofcode2022.riddle.n.model.CaveModel;
 import de.barryallenofearth.adventofcode2022.riddle.n.model.Coordinates;
@@ -15,33 +15,33 @@ public class SandSimulator {
 		final Set<Coordinates> sandRestingCoordinates = new HashSet<>();
 		do {
 			Coordinates currentCoordinates = new Coordinates(SAND_START_COORDINATES.getRow(), SAND_START_COORDINATES.getColumn());
-			while (currentCoordinates.getColumn() < caveModel.getMaxY()) {
-				final Optional<Coordinates> coordinates = nextSandStep(currentCoordinates, sandRestingCoordinates, caveModel.getRockCoordinates());
+			while (!sandRestingCoordinates.contains(currentCoordinates)) {
+				final Optional<Coordinates> coordinates = nextSandStep(currentCoordinates, sandRestingCoordinates, caveModel);
 				if (coordinates.isEmpty()) {
 					sandRestingCoordinates.add(currentCoordinates);
 					break;
 				}
 				currentCoordinates = coordinates.get();
 			}
-			if (currentCoordinates.getColumn() >= caveModel.getMaxY()) {
-				break;
-			}
-		} while (true);
+		} while (!sandRestingCoordinates.contains(SAND_START_COORDINATES));
 		System.out.println(sandRestingCoordinates.size() + " could be placed before the sand overflows the structure.");
 		return sandRestingCoordinates;
 	}
 
-	public static Optional<Coordinates> nextSandStep(Coordinates currentSandPosition, Set<Coordinates> restingSandCoordinates, Set<Coordinates> rockCoordinates) {
+	public static Optional<Coordinates> nextSandStep(Coordinates currentSandPosition, Set<Coordinates> restingSandCoordinates, CaveModel caveModel) {
+		if (currentSandPosition.getColumn() == caveModel.getMaxY() + 1) {
+			return Optional.empty();
+		}
 		Coordinates down = new Coordinates(currentSandPosition.getRow(), currentSandPosition.getColumn() + 1);
-		if (!restingSandCoordinates.contains(down) && !rockCoordinates.contains(down)) {
+		if (!restingSandCoordinates.contains(down) && !caveModel.getRockCoordinates().contains(down)) {
 			return Optional.of(down);
 		}
 		Coordinates leftDown = new Coordinates(currentSandPosition.getRow() - 1, currentSandPosition.getColumn() + 1);
-		if (!restingSandCoordinates.contains(leftDown) && !rockCoordinates.contains(leftDown)) {
+		if (!restingSandCoordinates.contains(leftDown) && !caveModel.getRockCoordinates().contains(leftDown)) {
 			return Optional.of(leftDown);
 		}
 		Coordinates rightDown = new Coordinates(currentSandPosition.getRow() + 1, currentSandPosition.getColumn() + 1);
-		if (!restingSandCoordinates.contains(rightDown) && !rockCoordinates.contains(rightDown)) {
+		if (!restingSandCoordinates.contains(rightDown) && !caveModel.getRockCoordinates().contains(rightDown)) {
 			return Optional.of(rightDown);
 		}
 		return Optional.empty();

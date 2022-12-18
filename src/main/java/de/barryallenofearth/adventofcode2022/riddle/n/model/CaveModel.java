@@ -1,12 +1,11 @@
 package de.barryallenofearth.adventofcode2022.riddle.n.model;
 
-import de.barryallenofearth.adventofcode2022.riddle.n.part1.Main_14_1;
 import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static de.barryallenofearth.adventofcode2022.riddle.n.common.SandSimulator.SAND_START_COORDINATES;
+import static de.barryallenofearth.adventofcode2022.riddle.n.part1.SandSimulator.SAND_START_COORDINATES;
 
 @Data
 public class CaveModel {
