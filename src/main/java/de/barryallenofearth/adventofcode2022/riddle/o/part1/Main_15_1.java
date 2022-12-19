@@ -11,7 +11,7 @@ import java.util.List;
 public class Main_15_1 {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		final List<SensorClosestBeacon> sensorBeaconReaders = SensorBeaconReader.readSensorBeacons();
-		final int occupiedPlacesInLine = FindPositionsWithNoBeacons.findOccupiedPlacesInLine(2000000, sensorBeaconReaders);
-		System.out.println(occupiedPlacesInLine);
+		final int occupiedPlacesInLine = FindPositionsWithNoBeacons.findOccupiedPlacesInLine(2_000_000, sensorBeaconReaders);
+		System.out.println(occupiedPlacesInLine + " fields cannot contain a beacon");
 	}
 }

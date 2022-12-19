@@ -8,7 +8,7 @@ public class SensorClosestBeacon {
 		this.sensor = sensor;
 		this.beacon = beacon;
 
-		manhattenDistance = Math.abs(sensor.getRow() - beacon.getRow()) + Math.abs(sensor.getColumn() - beacon.getColumn());
+		manhattenDistance = Math.abs(sensor.getX() - beacon.getX()) + Math.abs(sensor.getY() - beacon.getY());
 	}
 
 	private final Coordinates sensor;
