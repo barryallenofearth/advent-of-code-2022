@@ -20,26 +20,23 @@ public class FindPositionsWithNoBeacons {
 		System.out.println("scanning from x=" + min + " to " + max);
 		final Set<Coordinates> occupiedFields = new HashSet<>();
 		for (int xValue = min - 1; xValue <= max + 1; xValue++) {
-			String symbolToPrint = ".";
 			final Coordinates currentCoordinates = new Coordinates(xValue, yValue);
-			for (SensorClosestBeacon sensorClosestBeacon : sensorClosestBeaconList) {
-				if (currentCoordinates.equals(sensorClosestBeacon.getBeacon())) {
-					symbolToPrint = "B";
-					break;
-				} else if (currentCoordinates.equals(sensorClosestBeacon.getSensor())) {
-					symbolToPrint = "S";
-					break;
-				}
-				final int sensorCurrentLocationDistance = Math.abs(sensorClosestBeacon.getSensor().getY() - yValue) + Math.abs(sensorClosestBeacon.getSensor().getX() - xValue);
-				if (sensorCurrentLocationDistance <= sensorClosestBeacon.getManhattenDistance()) {
-					symbolToPrint = "#";
-					occupiedFields.add(currentCoordinates);
-					break;
-				}
+			boolean isAvailable = isFieldAvailable(sensorClosestBeaconList, currentCoordinates);
+			if (!isAvailable) {
+				occupiedFields.add(currentCoordinates);
 			}
-			//System.out.print(symbolToPrint);
 		}
 
 		return occupiedFields.size();
+	}
+
+	public static boolean isFieldAvailable(List<SensorClosestBeacon> sensorClosestBeaconList, Coordinates currentCoordinates) {
+		for (SensorClosestBeacon sensorClosestBeacon : sensorClosestBeaconList) {
+			final int sensorCurrentLocationDistance = Math.abs(sensorClosestBeacon.getSensor().getY() - currentCoordinates.getY()) + Math.abs(sensorClosestBeacon.getSensor().getX() - currentCoordinates.getX());
+			if (sensorCurrentLocationDistance <= sensorClosestBeacon.getManhattenDistance()) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
