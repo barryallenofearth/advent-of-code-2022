@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.o.valves.model;
+package de.barryallenofearth.adventofcode2022.riddle.o.beacons.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

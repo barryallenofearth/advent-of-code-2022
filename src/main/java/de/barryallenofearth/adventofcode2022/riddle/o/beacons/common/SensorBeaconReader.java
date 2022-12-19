@@ -1,7 +1,7 @@
-package de.barryallenofearth.adventofcode2022.riddle.o.valves.common;
+package de.barryallenofearth.adventofcode2022.riddle.o.beacons.common;
 
-import de.barryallenofearth.adventofcode2022.riddle.o.valves.model.Coordinates;
-import de.barryallenofearth.adventofcode2022.riddle.o.valves.model.SensorClosestBeacon;
+import de.barryallenofearth.adventofcode2022.riddle.o.beacons.model.Coordinates;
+import de.barryallenofearth.adventofcode2022.riddle.o.beacons.model.SensorClosestBeacon;
 import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
 import java.io.IOException;

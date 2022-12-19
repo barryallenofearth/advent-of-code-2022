@@ -1,8 +1,8 @@
-package de.barryallenofearth.adventofcode2022.riddle.o.valves.part1;
+package de.barryallenofearth.adventofcode2022.riddle.o.beacons.part1;
 
-import de.barryallenofearth.adventofcode2022.riddle.o.valves.common.FindPositionsWithNoBeacons;
-import de.barryallenofearth.adventofcode2022.riddle.o.valves.common.SensorBeaconReader;
-import de.barryallenofearth.adventofcode2022.riddle.o.valves.model.SensorClosestBeacon;
+import de.barryallenofearth.adventofcode2022.riddle.o.beacons.common.FindPositionsWithNoBeacons;
+import de.barryallenofearth.adventofcode2022.riddle.o.beacons.common.SensorBeaconReader;
+import de.barryallenofearth.adventofcode2022.riddle.o.beacons.model.SensorClosestBeacon;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
