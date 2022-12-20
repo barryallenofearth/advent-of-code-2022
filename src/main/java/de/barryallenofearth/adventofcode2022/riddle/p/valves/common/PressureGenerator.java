@@ -8,161 +8,179 @@ import java.util.stream.Collectors;
 
 public class PressureGenerator {
 
-    public static final int NUMBER_OF_MINUTES = 30;
-    public static final String STARTING_VALVE = "AA";
+	public static final int NUMBER_OF_MINUTES = 30;
 
-    public static int findMaxPressureSequence(List<Valve> valves) {
+	public static final String STARTING_VALVE = "AA";
 
-        int maxPressure = 0;
-        final Map<ValveConnection, Integer> valveConnectionIntegerMap = determineValveDistances(valves);
+	public static int findMaxPressureSequence(List<Valve> valves) {
 
-        final List<Valve> sortedValves = valves.stream()
-                .sorted(Comparator.comparingInt(Valve::getFlowRate).reversed())
-                .collect(Collectors.toList());
-        //iterate through all starting valvae
-        int totalPressure = 0;
-        int remainingMinutes = NUMBER_OF_MINUTES;
-        int accumulatedFlowRate = 0;
+		int maxPressure = 0;
+		final Map<ValveConnection, Integer> valveConnectionIntegerMap = determineValveDistances(valves);
 
-        Valve currentValve = getByKey(STARTING_VALVE, valves);
-        System.out.println("starting valve: " + currentValve.getKey());
-        while (remainingMinutes > 0) {
-            if (currentValve.getFlowRate() > 0 && !currentValve.isOpen()) {
-                accumulatedFlowRate += currentValve.getFlowRate();
-                currentValve.setOpen(true);
-                remainingMinutes--;
-            } else {
-                final Optional<Valve> next = determineNextValve(valves, currentValve, valveConnectionIntegerMap, remainingMinutes);
-                if (next.isPresent()) {
-                    final Integer minutesSpentMoving = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), next.get().getKey()));
-                    totalPressure += accumulatedFlowRate * minutesSpentMoving;
-                    remainingMinutes -= minutesSpentMoving;
-                    currentValve = next.get();
-                    System.out.println(currentValve.getKey());
-                } else {
-                    //waiting for the end of the countdown
-                    remainingMinutes--;
-                }
-            }
-//                System.out.println("current flow rate :" + accumulatedFlowRate);
-            totalPressure += accumulatedFlowRate;
-        }
-        System.out.println("total generated pressure :" + totalPressure);
-        if (totalPressure > maxPressure) {
-            maxPressure = totalPressure;
-        }
-        for (Valve sortedValve : sortedValves) {
-            sortedValve.setOpen(false);
-        }
-        System.out.println("max generated pressure :" + maxPressure);
-        return maxPressure;
-    }
+		final List<Valve> sortedValves = valves.stream()
+				.sorted(Comparator.comparingInt(Valve::getFlowRate).reversed())
+				.collect(Collectors.toList());
+		//iterate through all starting valvae
+		int totalPressure = 0;
+		int remainingMinutes = NUMBER_OF_MINUTES;
+		int accumulatedFlowRate = 0;
 
-    private static Map<ValveConnection, Integer> determineValveDistances(List<Valve> valves) {
+		Valve currentValve = getByKey(STARTING_VALVE, valves);
+		System.out.println("starting valve: " + currentValve.getKey());
+		List<String> valveSequence = new ArrayList<>();
+		valveSequence.add(currentValve.getKey());
+		boolean isInIdleMode = false;
+		while (remainingMinutes > 1) {
+			if (currentValve.isOpen() && !isInIdleMode) {
+				accumulatedFlowRate += currentValve.getFlowRate();
+				totalPressure += accumulatedFlowRate;
+			}
+			if (currentValve.getFlowRate() > 0 && !currentValve.isOpen()) {
+				System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": Open valve " + currentValve.getKey() + " in 1 minutes.\n");
+				currentValve.setOpen(true);
+				valveSequence.add(currentValve.getKey());
+				remainingMinutes--;
+			} else {
+				final Optional<Valve> next = determineNextValve(valves, currentValve, valveConnectionIntegerMap, remainingMinutes);
+				if (next.isPresent()) {
+					final Integer minutesSpentMoving = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), next.get().getKey()));
+					System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": Move from " + currentValve.getKey() + " to " + next.get().getKey() + " in " + minutesSpentMoving + " minutes.");
+					System.out.println("releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
+					System.out.println();
 
-        final Map<ValveConnection, Integer> valveStepDistanceRelation = new HashMap<>();
-        for (Valve startingValve : valves) {
-            for (Valve stopValve : valves) {
-                if (startingValve.equals(stopValve)) {
-                    continue;
-                }
-                int stepCount = determineNumberOfSteps(valves, startingValve, stopValve);
-                valveStepDistanceRelation.put(new ValveConnection(startingValve.getKey(), stopValve.getKey()), stepCount);
-            }
-        }
-        return valveStepDistanceRelation;
-    }
+					for (int minute = 0; minute < minutesSpentMoving; minute++) {
+						totalPressure += accumulatedFlowRate;
+						remainingMinutes--;
+						System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
+					}
+					currentValve = next.get();
+				} else {
+					//waiting for the end of the countdown
+					isInIdleMode = true;
+					totalPressure += accumulatedFlowRate;
+					remainingMinutes--;
+					System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": idle... releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
+				}
+			}
+		}
+		System.out.println("total generated pressure :" + totalPressure);
+		if (totalPressure > maxPressure) {
+			maxPressure = totalPressure;
+		}
+		for (Valve sortedValve : sortedValves) {
+			sortedValve.setOpen(false);
+		}
 
-    private static int determineNumberOfSteps(List<Valve> valves, Valve startingValve, Valve stopValve) {
-        int stepCount = 0;
-        Stack<Stack<Valve>> openNodes = new Stack<>();
-        final Stack<Valve> nextNodes = new Stack<>();
-        nextNodes.add(startingValve);
-        openNodes.push(nextNodes);
-        final Set<Valve> closedNodes = new HashSet<>();
-        while (!openNodes.isEmpty()) {
-            final Stack<Valve> currentValveStack = openNodes.pop();
-            final Stack<Valve> nextStepValves = new Stack<>();
-            while (!currentValveStack.isEmpty()) {
-                final Valve currentValve = currentValveStack.pop();
-                if (currentValve.equals(stopValve)) {
-                    return stepCount;
-                }
-                if (stepCount > valves.size()) {
-                    throw new IllegalStateException("The number of steps taken exceeds the number of different valves.");
-                }
-                currentValve.getConnectedValveKeys().stream()
-                        .map(key -> getByKey(key, valves))
-                        .filter(valve -> !closedNodes.contains(valve))
-                        .forEach(nextStepValves::push);
+		for (String s : valveSequence) {
+			System.out.println(s);
+		}
+		return maxPressure;
+	}
 
-                closedNodes.add(currentValve);
-            }
-            if (!nextStepValves.isEmpty()) {
-                openNodes.add(nextStepValves);
-            }
-            stepCount++;
-        }
-        return stepCount;
-    }
+	private static Map<ValveConnection, Integer> determineValveDistances(List<Valve> valves) {
 
-    public static Valve getByKey(String key, List<Valve> valves) {
-        final Optional<Valve> matchingValve = valves.stream().filter(valve -> valve.getKey().equals(key)).findFirst();
-        if (matchingValve.isEmpty()) {
-            throw new IllegalStateException("No matching valve for key detected: " + key);
-        }
-        return matchingValve.get();
-    }
+		final Map<ValveConnection, Integer> valveStepDistanceRelation = new HashMap<>();
+		for (Valve startingValve : valves) {
+			for (Valve stopValve : valves) {
+				if (startingValve.equals(stopValve)) {
+					continue;
+				}
+				int stepCount = determineNumberOfSteps(valves, startingValve, stopValve);
+				valveStepDistanceRelation.put(new ValveConnection(startingValve.getKey(), stopValve.getKey()), stepCount);
+			}
+		}
+		return valveStepDistanceRelation;
+	}
 
-    public static Optional<Valve> determineNextValve(List<Valve> valves, Valve currentValve, Map<ValveConnection, Integer> valveConnectionIntegerMap, int remainingMinutes) {
-        final Optional<Valve> bestOption = valves.stream()
-                .filter(valve -> !valve.isOpen())
-                .filter(valve -> !valve.equals(currentValve))
-                .filter(valve -> valve.getFlowRate() > 0)
-                .filter(valve -> {
-                    final Integer numberOfMinutesToReach = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()));
-                    return numberOfMinutesToReach != null && remainingMinutes - numberOfMinutesToReach >= 0;
-                })
-                .max(Comparator.comparingDouble(valve -> {
-                    final Integer numberOfMinutesToReach = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()));
-                    if (numberOfMinutesToReach != null) {
-                        return ((double) valve.getFlowRate()) / numberOfMinutesToReach;
-                    }
-                    return Integer.MIN_VALUE;
-                }));
+	private static int determineNumberOfSteps(List<Valve> valves, Valve startingValve, Valve stopValve) {
+		int stepCount = 0;
+		Stack<Stack<Valve>> openNodes = new Stack<>();
+		final Stack<Valve> nextNodes = new Stack<>();
+		nextNodes.add(startingValve);
+		openNodes.push(nextNodes);
+		final Set<Valve> closedNodes = new HashSet<>();
+		while (!openNodes.isEmpty()) {
+			final Stack<Valve> currentValveStack = openNodes.pop();
+			final Stack<Valve> nextStepValves = new Stack<>();
+			while (!currentValveStack.isEmpty()) {
+				final Valve currentValve = currentValveStack.pop();
+				if (currentValve.equals(stopValve)) {
+					return stepCount;
+				}
+				if (stepCount > valves.size()) {
+					throw new IllegalStateException("The number of steps taken exceeds the number of different valves.");
+				}
+				currentValve.getConnectedValveKeys().stream()
+						.map(key -> getByKey(key, valves))
+						.filter(valve -> !closedNodes.contains(valve))
+						.forEach(nextStepValves::push);
 
-        return bestOption;
-    }
+				closedNodes.add(currentValve);
+			}
+			if (!nextStepValves.isEmpty()) {
+				openNodes.add(nextStepValves);
+			}
+			stepCount++;
+		}
+		return stepCount;
+	}
 
-    public static List<Queue<Valve>> getAllPermutations(List<Valve> valves) {
-        final Valve aaValve = getByKey(STARTING_VALVE, valves);
+	public static Valve getByKey(String key, List<Valve> valves) {
+		final Optional<Valve> matchingValve = valves.stream().filter(valve -> valve.getKey().equals(key)).findFirst();
+		if (matchingValve.isEmpty()) {
+			throw new IllegalStateException("No matching valve for key detected: " + key);
+		}
+		return matchingValve.get();
+	}
 
-        final List<Valve> usefulValves = valves.stream()
-                .filter(valve -> valve.getFlowRate() > 0)
-                .filter(valve -> !valve.getKey().equals(aaValve.getKey()))
-                .collect(Collectors.toList());
+	public static Optional<Valve> determineNextValve(List<Valve> valves, Valve currentValve, Map<ValveConnection, Integer> valveConnectionIntegerMap, int remainingMinutes) {
+		final Optional<Valve> bestOption = valves.stream()
+				.filter(valve -> !valve.isOpen())
+				.filter(valve -> !valve.equals(currentValve))
+				.filter(valve -> valve.getFlowRate() > 0)
+				.filter(valve -> {
+					final Integer numberOfMinutesToReach = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()));
+					return numberOfMinutesToReach != null && remainingMinutes - numberOfMinutesToReach >= 0;
+				})
+				.max(Comparator.comparingDouble(valve -> {
+					final Integer numberOfMinutesToReach = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()));
+					if (numberOfMinutesToReach != null) {
+						return ((double) valve.getFlowRate()) / (numberOfMinutesToReach * numberOfMinutesToReach);
+					}
+					return Integer.MIN_VALUE;
+				}));
 
-        final List<Queue<Valve>> allSequences = initSequences(aaValve, usefulValves);
-        for (int valveIndex = 0; valveIndex < usefulValves.size(); valveIndex++) {
-            Valve valve = usefulValves.get(valveIndex);
-            for (int sequenceIndex = valveIndex * usefulValves.size(); sequenceIndex < usefulValves.size(); sequenceIndex++) {
-                Queue<Valve> sequence = allSequences.get(sequenceIndex);
-                sequence.add(valve);
-            }
-        }
+		return bestOption;
+	}
 
+	public static List<Queue<Valve>> getAllPermutations(List<Valve> valves) {
+		final Valve aaValve = getByKey(STARTING_VALVE, valves);
 
-        return allSequences;
-    }
+		final List<Valve> usefulValves = valves.stream()
+				.filter(valve -> valve.getFlowRate() > 0)
+				.filter(valve -> !valve.getKey().equals(aaValve.getKey()))
+				.collect(Collectors.toList());
 
-    private static List<Queue<Valve>> initSequences(Valve aaValve, List<Valve> usefulValves) {
+		final List<Queue<Valve>> allSequences = initSequences(aaValve, usefulValves);
+		for (int valveIndex = 0; valveIndex < usefulValves.size(); valveIndex++) {
+			Valve valve = usefulValves.get(valveIndex);
+			for (int sequenceIndex = valveIndex * usefulValves.size(); sequenceIndex < usefulValves.size(); sequenceIndex++) {
+				Queue<Valve> sequence = allSequences.get(sequenceIndex);
+				sequence.add(valve);
+			}
+		}
 
-        List<Queue<Valve>> allSequences = new ArrayList<>();
-        for (int stackCount = 0; stackCount < usefulValves.size() * usefulValves.size(); stackCount++) {
-            Queue<Valve> stack = new LinkedList<>();
-            stack.add(aaValve);
-            allSequences.add(stack);
-        }
-        return allSequences;
-    }
+		return allSequences;
+	}
+
+	private static List<Queue<Valve>> initSequences(Valve aaValve, List<Valve> usefulValves) {
+
+		List<Queue<Valve>> allSequences = new ArrayList<>();
+		for (int stackCount = 0; stackCount < usefulValves.size() * usefulValves.size(); stackCount++) {
+			Queue<Valve> stack = new LinkedList<>();
+			stack.add(aaValve);
+			allSequences.add(stack);
+		}
+		return allSequences;
+	}
 }

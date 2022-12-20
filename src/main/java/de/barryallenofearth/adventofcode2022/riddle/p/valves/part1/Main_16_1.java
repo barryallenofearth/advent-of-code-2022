@@ -12,8 +12,9 @@ public class Main_16_1 {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 
 		final List<Valve> valves = ValveParser.readValves();
-		PressureGenerator.findMaxPressureSequence(valves);
-		System.out.println(valves);
+		final int maxPressureSequence = PressureGenerator.findMaxPressureSequence(valves);
+
+		System.out.println("max generated pressure :" + maxPressureSequence);
 
 	}
 }
