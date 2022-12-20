@@ -69,6 +69,10 @@ public class PressureGenerator {
 		for (String s : valveSequence) {
 			System.out.println(s);
 		}
+
+		for (Valve valve : findShortestPath(valves, valveConnectionIntegerMap)) {
+			System.out.println(valve.getKey());
+		}
 		return totalPressure;
 	}
 
@@ -148,12 +152,31 @@ public class PressureGenerator {
 		return bestOption;
 	}
 
-	public static Queue<Valve> findShortestPath(List<Valve> valves) {
+	public static Queue<Valve> findShortestPath(List<Valve> valves, Map<ValveConnection, Integer> valveConnectionIntegerMap) {
 		Queue<Valve> sequence = new LinkedList<>();
 
+		final Valve aaValve = getByKey("AA", valves);
+		sequence.add(aaValve);
+
+		Valve currentValve = aaValve;
+		final List<Valve> sortedValves = getSortedValves(valves, valveConnectionIntegerMap, currentValve, sequence);
+		final int numberOfValvesWithFiniteFlowRate = sortedValves.size();
+
+		while (sequence.size() < numberOfValvesWithFiniteFlowRate) {
+			sequence.add(getSortedValves(valves, valveConnectionIntegerMap, currentValve, sequence).get(0));
+		}
 
 		return sequence;
 
+	}
+
+	private static List<Valve> getSortedValves(List<Valve> valves, Map<ValveConnection, Integer> valveConnectionIntegerMap, Valve currentValve, Queue<Valve> sequence) {
+		final List<Valve> valvesWithFiniteFlowRate = valves.stream()
+				.filter(valve -> valve.getFlowRate() > 0)
+				.filter(valve -> !sequence.contains(valve))
+				.sorted(Comparator.comparingInt(valve -> valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()))))
+				.collect(Collectors.toList());
+		return valvesWithFiniteFlowRate;
 	}
 
 	private static List<Queue<Valve>> initSequences(Valve aaValve, List<Valve> usefulValves) {
