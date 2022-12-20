@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ValveConnection {
 
-	private final Valve startingValve;
+	private final String startingValveKey;
 
-	private final Valve stopValve;
+	private final String stopValveKey;
 
 }

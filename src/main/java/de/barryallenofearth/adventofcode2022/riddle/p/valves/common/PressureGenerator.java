@@ -11,31 +11,50 @@ public class PressureGenerator {
     public static final int NUMBER_OF_MINUTES = 30;
 
     public static int findMaxPressureSequence(List<Valve> valves) {
-        int totalPressure = 0;
 
-        int accumulatedFlowRate = 0;
+        int maxPressure = 0;
         final Map<ValveConnection, Integer> valveConnectionIntegerMap = determineValveDistances(valves);
 
         final List<Valve> sortedValves = valves.stream()
                 .sorted(Comparator.comparingInt(Valve::getFlowRate).reversed())
                 .collect(Collectors.toList());
-        int remainingMinutes = NUMBER_OF_MINUTES;
         //iterate through all starting valvae
         for (Valve startingValve : sortedValves) {
+            int totalPressure = 0;
+            int remainingMinutes = NUMBER_OF_MINUTES;
+            int accumulatedFlowRate = 0;
 
             Valve currentValve = startingValve;
+            System.out.println("starting valve: " + currentValve.getKey());
             while (remainingMinutes > 0) {
                 if (currentValve.getFlowRate() > 0 && !currentValve.isOpen()) {
-                    accumulatedFlowRate = currentValve.getFlowRate();
+                    accumulatedFlowRate += currentValve.getFlowRate();
+                    currentValve.setOpen(true);
+                    remainingMinutes--;
                 } else {
-                    //TODO next step handling
+                    final Optional<Valve> next = determineNextValve(valves, currentValve, valveConnectionIntegerMap, remainingMinutes);
+                    if (next.isPresent()) {
+                        remainingMinutes -= valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), next.get().getKey()));
+                        currentValve = next.get();
+                        System.out.println(currentValve.getKey());
+                    } else {
+                        //waiting for the end of the countdown
+                        remainingMinutes--;
+                    }
                 }
-                remainingMinutes--;
+//                System.out.println("current flow rate :" + accumulatedFlowRate);
                 totalPressure += accumulatedFlowRate;
             }
+            System.out.println("total generated pressure :" + totalPressure);
+            if (totalPressure > maxPressure) {
+                maxPressure = totalPressure;
+            }
+            for (Valve sortedValve : sortedValves) {
+                sortedValve.setOpen(false);
+            }
         }
-
-        return totalPressure;
+        System.out.println("max generated pressure :" + maxPressure);
+        return maxPressure;
     }
 
     private static Map<ValveConnection, Integer> determineValveDistances(List<Valve> valves) {
@@ -47,7 +66,7 @@ public class PressureGenerator {
                     continue;
                 }
                 int stepCount = determineNumberOfSteps(valves, startingValve, stopValve);
-                valveStepDistanceRelation.put(new ValveConnection(startingValve, stopValve), stepCount);
+                valveStepDistanceRelation.put(new ValveConnection(startingValve.getKey(), stopValve.getKey()), stepCount);
             }
         }
         return valveStepDistanceRelation;
@@ -92,5 +111,22 @@ public class PressureGenerator {
             throw new IllegalStateException("No matching valve for key detected: " + key);
         }
         return matchingValve.get();
+    }
+
+    public static Optional<Valve> determineNextValve(List<Valve> valves, Valve currentValve, Map<ValveConnection, Integer> valveConnectionIntegerMap, int remainingMinutes) {
+        final List<Valve> bestOption = valves.stream()
+                .filter(valve -> !valve.isOpen())
+                .filter(valve -> !valve.equals(currentValve))
+                .filter(valve -> valve.getFlowRate() > 0)
+                .filter(valve -> {
+                    final Integer numberOfMinutesToReach = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()));
+                    return numberOfMinutesToReach != null && remainingMinutes - numberOfMinutesToReach >= 0;
+                })
+                .sorted(Comparator.comparingDouble(valve -> {
+                    final Integer numberOfMinutesToReach = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), valve.getKey()));
+                    return Objects.requireNonNullElse(numberOfMinutesToReach, Integer.MAX_VALUE);
+                })).collect(Collectors.toList());
+
+        return bestOption.isEmpty() ? Optional.empty() : Optional.ofNullable(bestOption.get(0));
     }
 }
