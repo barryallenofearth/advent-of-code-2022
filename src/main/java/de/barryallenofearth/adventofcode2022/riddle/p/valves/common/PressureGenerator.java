@@ -30,13 +30,13 @@ public class PressureGenerator {
 		List<String> valveSequence = new ArrayList<>();
 		valveSequence.add(currentValve.getKey());
 		boolean isInIdleMode = false;
-		while (remainingMinutes > 1) {
+		while (remainingMinutes > 0) {
 			if (currentValve.isOpen() && !isInIdleMode) {
 				accumulatedFlowRate += currentValve.getFlowRate();
-				totalPressure += accumulatedFlowRate;
 			}
 			if (currentValve.getFlowRate() > 0 && !currentValve.isOpen()) {
-				System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": Open valve " + currentValve.getKey() + " in 1 minutes.\n");
+				totalPressure += accumulatedFlowRate;
+				System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": Open valve " + currentValve.getKey() + " in 1 minutes. releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
 				currentValve.setOpen(true);
 				valveSequence.add(currentValve.getKey());
 				remainingMinutes--;
@@ -45,28 +45,23 @@ public class PressureGenerator {
 				if (next.isPresent()) {
 					final Integer minutesSpentMoving = valveConnectionIntegerMap.get(new ValveConnection(currentValve.getKey(), next.get().getKey()));
 					System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": Move from " + currentValve.getKey() + " to " + next.get().getKey() + " in " + minutesSpentMoving + " minutes.");
-					System.out.println("releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
-					System.out.println();
 
 					for (int minute = 0; minute < minutesSpentMoving; minute++) {
 						totalPressure += accumulatedFlowRate;
+						System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": moving; releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
 						remainingMinutes--;
-						System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
 					}
 					currentValve = next.get();
 				} else {
 					//waiting for the end of the countdown
 					isInIdleMode = true;
 					totalPressure += accumulatedFlowRate;
-					remainingMinutes--;
 					System.out.println("Minute " + (NUMBER_OF_MINUTES - (remainingMinutes - 1)) + ": idle... releasing pressure=" + accumulatedFlowRate + "; total pressure=" + totalPressure);
+					remainingMinutes--;
 				}
 			}
 		}
-		System.out.println("total generated pressure :" + totalPressure);
-		if (totalPressure > maxPressure) {
-			maxPressure = totalPressure;
-		}
+
 		for (Valve sortedValve : sortedValves) {
 			sortedValve.setOpen(false);
 		}
@@ -74,7 +69,7 @@ public class PressureGenerator {
 		for (String s : valveSequence) {
 			System.out.println(s);
 		}
-		return maxPressure;
+		return totalPressure;
 	}
 
 	private static Map<ValveConnection, Integer> determineValveDistances(List<Valve> valves) {
@@ -153,24 +148,12 @@ public class PressureGenerator {
 		return bestOption;
 	}
 
-	public static List<Queue<Valve>> getAllPermutations(List<Valve> valves) {
-		final Valve aaValve = getByKey(STARTING_VALVE, valves);
+	public static Queue<Valve> findShortestPath(List<Valve> valves) {
+		Queue<Valve> sequence = new LinkedList<>();
 
-		final List<Valve> usefulValves = valves.stream()
-				.filter(valve -> valve.getFlowRate() > 0)
-				.filter(valve -> !valve.getKey().equals(aaValve.getKey()))
-				.collect(Collectors.toList());
 
-		final List<Queue<Valve>> allSequences = initSequences(aaValve, usefulValves);
-		for (int valveIndex = 0; valveIndex < usefulValves.size(); valveIndex++) {
-			Valve valve = usefulValves.get(valveIndex);
-			for (int sequenceIndex = valveIndex * usefulValves.size(); sequenceIndex < usefulValves.size(); sequenceIndex++) {
-				Queue<Valve> sequence = allSequences.get(sequenceIndex);
-				sequence.add(valve);
-			}
-		}
+		return sequence;
 
-		return allSequences;
 	}
 
 	private static List<Queue<Valve>> initSequences(Valve aaValve, List<Valve> usefulValves) {
