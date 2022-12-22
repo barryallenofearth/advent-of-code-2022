@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Coordinates {
-	private long x;
+	private int x;
 
 	private long y;
 }

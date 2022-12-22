@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 @Data
 public class Cave {
 
-    public static final long X_LEFT_BORDER = -1;
+    public static final int X_LEFT_BORDER = -1;
 
-    public static final long X_RIGHT_BORDER = 7;
+    public static final int X_RIGHT_BORDER = 7;
 
     private long currentRockHeight = -1;
 
