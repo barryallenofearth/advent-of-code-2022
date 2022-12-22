@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class Main_16_1 {
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 
 		final List<Valve> valves = ValveParser.readValves();
 		final int maxPressureSequence = PressureGenerator.findMaxPressureSequence(valves);

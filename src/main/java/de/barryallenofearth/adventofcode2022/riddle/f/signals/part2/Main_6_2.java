@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class Main_6_2 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
 
         final List<String> strings = RiddleFileReader.readAllLines("riddle-6.txt");
         final List<Integer> numberOfReadSymbolToEndOfStartSequence = StartSignalFinder.findNumberOfReadSymbolToEndOfStartSequence(strings, 14);

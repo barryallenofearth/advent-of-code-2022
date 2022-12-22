@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class Main {
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 		final List<PairedZoneAssignment> assignments = AssignmentReader.readAllAssignments("riddle-4.txt");
 		final List<PairedZoneAssignment> assignmentWithPartialZoneOverlap = PartialOverlapFinder.findAssignmentWithCompleteZoneOverlap(assignments);
 

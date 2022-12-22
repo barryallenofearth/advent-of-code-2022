@@ -10,7 +10,7 @@ import java.util.List;
 
 public class HeightMapReader {
 
-	public static HeightJourneyModel readHeightMap() throws IOException, URISyntaxException {
+	public static HeightJourneyModel readHeightMap() {
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-12.txt");
 		final int numberOfColumns = strings.get(0).length();
 		final int numberOfRows = strings.size();

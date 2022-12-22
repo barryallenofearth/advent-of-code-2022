@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class Main_5_2 {
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 		final List<Stack<String>> stacks = StackReader.readStacks("riddle-5.txt");
 		final List<CommandModel> commandModels = InstructionsReader.readCommands("riddle-5.txt");
 

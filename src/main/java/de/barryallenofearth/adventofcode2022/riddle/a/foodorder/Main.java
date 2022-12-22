@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Main {
 
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 		ElvesWithFoodReader elvesWithFoodReader = new ElvesWithFoodReader();
 		final List<Elf> elves = elvesWithFoodReader.readFoodCarriedByElfes("riddle-1.txt");
 

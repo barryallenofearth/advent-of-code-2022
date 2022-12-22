@@ -12,7 +12,7 @@ public class RockCoordinatesReader {
 
 	public static final String COORDINATES_SEPARATOR = " -> ";
 
-	public static CaveModel readRockCoordinates() throws IOException, URISyntaxException {
+	public static CaveModel readRockCoordinates() {
 		final CaveModel caveModel = new CaveModel();
 		for (String line : RiddleFileReader.readAllLines("riddle-14.txt")) {
 			final String[] coordinates = line.split(COORDINATES_SEPARATOR);

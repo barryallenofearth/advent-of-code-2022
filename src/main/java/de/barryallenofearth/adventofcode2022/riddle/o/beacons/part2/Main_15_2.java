@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Main_15_2 {
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 
 		final List<SensorClosestBeacon> sensorClosestBeacons = SensorBeaconReader.readSensorBeacons();
 		final Optional<Coordinates> first = BorderFinder.findSensorBorders(sensorClosestBeacons);

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Main_8_2 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final int[][] treeGrid = GridReader.readTreeGrid();
         final Coordinates bestTreeHouseSpot = BestTreehouseSpotFinder.findBestTreeHouseSpot(treeGrid);
         for (int row = 0; row < treeGrid.length; row++) {

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Main_13_1 {
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 		final List<SignalPair> signalPairList = ReadSignalPairs.signalPairList();
 
 		final List<SignalPair> pairsOutOfOrder = PairsInOrderDetector.detectPairsInOrder(signalPairList);

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Main_11_2 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final List<Monkey> monkeys = ReadInitialMonkeyList.readMonkeys();
         System.out.println("Total items on the move: " + monkeys.stream().mapToInt((Monkey monkey) -> monkey.getItems().size()).sum());
         LocalDateTime previousTime = LocalDateTime.now();

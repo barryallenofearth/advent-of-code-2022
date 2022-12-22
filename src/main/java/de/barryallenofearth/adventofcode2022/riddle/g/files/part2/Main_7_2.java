@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class Main_7_2 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final List<Directory> directoryList = ReadDirectoryTree.readDirectoryTree();
         final Directory directory = FindSmallestDirectoryWithSufficientSize.findDirectory(directoryList);
 

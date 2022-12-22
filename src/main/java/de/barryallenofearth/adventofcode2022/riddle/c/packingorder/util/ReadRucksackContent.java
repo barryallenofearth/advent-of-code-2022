@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReadRucksackContent {
-	public static List<Rucksack> readRucksackList(String fileName) throws IOException, URISyntaxException {
+	public static List<Rucksack> readRucksackList(String fileName) {
 
 		List<String> rucksackEntries = RiddleFileReader.readAllLines(fileName);
 

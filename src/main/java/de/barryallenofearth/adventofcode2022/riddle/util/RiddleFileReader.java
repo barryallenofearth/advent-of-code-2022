@@ -10,7 +10,11 @@ import java.util.List;
 
 public class RiddleFileReader {
 
-	public static List<String> readAllLines(String fileName) throws IOException, URISyntaxException {
-		return FileUtils.readLines(new File(RiddleFileReader.class.getResource("/riddle-input/" + fileName).toURI()), StandardCharsets.UTF_8);
-	}
+    public static List<String> readAllLines(String fileName) {
+        try {
+            return FileUtils.readLines(new File(RiddleFileReader.class.getResource("/riddle-input/" + fileName).toURI()), StandardCharsets.UTF_8);
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -14,7 +14,7 @@ public class InstructionsReader {
 
 	public static final Pattern COMMAND_PATTERN = Pattern.compile("^move (\\d+) from (\\d+) to (\\d+)$");
 
-	public static List<CommandModel> readCommands(String fileName) throws IOException, URISyntaxException {
+	public static List<CommandModel> readCommands(String fileName) {
 		final List<CommandModel> commands = new ArrayList<>();
 		final List<String> strings = RiddleFileReader.readAllLines(fileName);
 

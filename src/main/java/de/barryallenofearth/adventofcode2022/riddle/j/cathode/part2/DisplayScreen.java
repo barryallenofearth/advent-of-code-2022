@@ -9,7 +9,7 @@ import java.util.List;
 public class DisplayScreen {
 	public static final String NOOP = "noop";
 
-	public static void printImage() throws IOException, URISyntaxException {
+	public static void printImage() {
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-10.txt");
 		int registerValue = 1;
 		int commandIndex = -1;

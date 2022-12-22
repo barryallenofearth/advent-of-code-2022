@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ReadSignalPairs {
 
-	public static List<SignalPair> signalPairList() throws IOException, URISyntaxException {
+	public static List<SignalPair> signalPairList() {
 		List<SignalPair> signalPairList = new ArrayList<>();
 
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-13.txt");

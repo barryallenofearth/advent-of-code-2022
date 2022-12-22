@@ -21,7 +21,7 @@ public class StrategyReaderService {
 	 * @param isPartOne
 	 * @return MatchModels containing the chosen options by your opponent and you
 	 */
-	public static List<MatchModel> readMatchesFromStrategyPaper(String fileName, boolean isPartOne) throws URISyntaxException, IOException {
+	public static List<MatchModel> readMatchesFromStrategyPaper(String fileName, boolean isPartOne) {
 		final List<String> allStrategyEntries = RiddleFileReader.readAllLines(fileName);
 
 		List<MatchModel> matchModels = new ArrayList<>();

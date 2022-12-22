@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Main_12_2 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final HeightJourneyModel heightJourneyModel = HeightMapReader.readHeightMap();
         final String[][] shortestPath = PathFinder.findShortestPath(heightJourneyModel, false);
         HeightAFinder.findBestStartingPoint(shortestPath);

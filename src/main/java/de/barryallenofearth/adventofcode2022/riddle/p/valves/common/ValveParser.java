@@ -15,7 +15,7 @@ public class ValveParser {
 
 	public static final Pattern VALVE_PATTERN = Pattern.compile("^Valve ([A-Z]+) has flow rate=(\\d+); tunnels? leads? to valves? ([A-Z\\s,]+)$");
 
-	public static List<Valve> readValves() throws IOException, URISyntaxException {
+	public static List<Valve> readValves() {
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-16.txt");
 		final List<Valve> valves = new ArrayList<>();
 

@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Main {
 
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 
 		boolean isPartOne = false;
 		final List<MatchModel> matchModels = StrategyReaderService.readMatchesFromStrategyPaper("riddle-2.txt", isPartOne);

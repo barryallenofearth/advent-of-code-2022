@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Main_14_1 {
 
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 		final CaveModel caveModel = RockCoordinatesReader.readRockCoordinates();
 
 		final Set<Coordinates> coordinates = SandSimulator.simulateSand(caveModel);

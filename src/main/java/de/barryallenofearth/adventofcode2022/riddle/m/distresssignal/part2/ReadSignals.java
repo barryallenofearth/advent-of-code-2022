@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ReadSignals {
 
-	public static List<SignalComponent> readSignals() throws IOException, URISyntaxException {
+	public static List<SignalComponent> readSignals() {
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-13.txt");
 		final List<SignalComponent> allSignals = new ArrayList<>();
 		final List<SignalComponent> allSubSignals = new ArrayList<>();

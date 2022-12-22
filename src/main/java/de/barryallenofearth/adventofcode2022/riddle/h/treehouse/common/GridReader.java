@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GridReader {
 
-    public static int[][] readTreeGrid() throws IOException, URISyntaxException {
+    public static int[][] readTreeGrid() {
         final List<String> strings = RiddleFileReader.readAllLines("riddle-8.txt");
         final int[][] treeGrid = new int[strings.size()][strings.get(0).length()];
 

@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class RopeMovement {
 
-    public static Set<Coordinates> findPositionsTouchedByTail() throws IOException, URISyntaxException {
+    public static Set<Coordinates> findPositionsTouchedByTail() {
         final Set<Coordinates> coordinatesTouchedByTail = new HashSet<>();
         final List<String> strings = RiddleFileReader.readAllLines("riddle-9.txt");
 

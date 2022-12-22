@@ -10,7 +10,7 @@ import java.util.Stack;
 
 public class StackReader {
 
-	public static List<Stack<String>> readStacks(String fileName) throws IOException, URISyntaxException {
+	public static List<Stack<String>> readStacks(String fileName) {
 		final List<String> strings = RiddleFileReader.readAllLines(fileName);
 
 		int firstStackRow = determineFirstStackLine(strings);

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AssignmentReader {
 
-	public static List<PairedZoneAssignment> readAllAssignments(String fileName) throws IOException, URISyntaxException {
+	public static List<PairedZoneAssignment> readAllAssignments(String fileName) {
 		final List<String> allLines = RiddleFileReader.readAllLines(fileName);
 		final List<PairedZoneAssignment> assignments = new ArrayList<>();
 		for (String line : allLines) {

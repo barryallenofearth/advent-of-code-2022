@@ -21,7 +21,7 @@ public class ElvesWithFoodReader {
 	 * @param fileName path to actual file relative to classpath
 	 * @return List of elves carrying food sorted by the total amount of carried calories, starting with the elf carrying the largest amount of calories
 	 */
-	public List<Elf> readFoodCarriedByElfes(String fileName) throws IOException, URISyntaxException {
+	public List<Elf> readFoodCarriedByElfes(String fileName) {
 		List<Elf> elvesWithFood = readUnsortedElfList(fileName);
 
 		elvesWithFood.sort(Comparator.comparingInt(this::sumUpCalories).reversed());
@@ -29,7 +29,7 @@ public class ElvesWithFoodReader {
 		return elvesWithFood;
 	}
 
-	private List<Elf> readUnsortedElfList(String fileName) throws IOException, URISyntaxException {
+	private List<Elf> readUnsortedElfList(String fileName) {
 		final List<String> elfCaloriesEntries = RiddleFileReader.readAllLines(fileName);
 
 		List<Elf> elvesWithFood = new ArrayList<>();

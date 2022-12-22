@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Main_11_1 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final List<Monkey> monkeys = ReadInitialMonkeyList.readMonkeys();
         System.out.println("Total items on the move: " + monkeys.stream().mapToInt((Monkey monkey) -> monkey.getItems().size()).sum());
         for (int round = 0; round < 20; round++) {

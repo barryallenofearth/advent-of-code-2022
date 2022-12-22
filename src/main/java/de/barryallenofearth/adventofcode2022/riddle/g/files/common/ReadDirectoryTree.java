@@ -18,7 +18,7 @@ public class ReadDirectoryTree {
     public static final Pattern DIR_PATTERN = Pattern.compile("^dir (.+)$");
     public static final Pattern FILE_PATTERN = Pattern.compile("^(\\d+) (.+)$");
 
-    public static List<Directory> readDirectoryTree() throws IOException, URISyntaxException {
+    public static List<Directory> readDirectoryTree() {
         final List<String> strings = RiddleFileReader.readAllLines("riddle-7.txt");
         List<Directory> directoryList = new ArrayList<>();
 

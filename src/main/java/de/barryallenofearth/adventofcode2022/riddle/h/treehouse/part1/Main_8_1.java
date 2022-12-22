@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 public class Main_8_1 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final int[][] treeGrid = GridReader.readTreeGrid();
 
         final Set<Coordinates> visibleTrees = VisibleTreeFinder.findAllVisibleTrees(treeGrid);

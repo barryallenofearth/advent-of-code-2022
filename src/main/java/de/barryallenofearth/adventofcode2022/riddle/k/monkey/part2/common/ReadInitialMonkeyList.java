@@ -24,7 +24,7 @@ public class ReadInitialMonkeyList {
     public static final Pattern OPERATION_PATTERN = Pattern.compile("(\\w+)\\s+([+*])\\s+(\\w+)");
     public static final String OLD = "old";
 
-    public static List<Monkey> readMonkeys() throws IOException, URISyntaxException {
+    public static List<Monkey> readMonkeys() {
         final List<String> strings = RiddleFileReader.readAllLines("riddle-11.txt");
         List<Monkey> monkeys = new ArrayList<>();
 

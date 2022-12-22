@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main_7_1 {
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
         final List<Directory> directoryList = ReadDirectoryTree.readDirectoryTree();
         final List<Directory> mostOuterDirBelowSizeLimit = GetAllDirectoriesBelowSizeLimit.getMostOuterDirBelowSizeLimit(100_000, directoryList, new ArrayList<>());
 

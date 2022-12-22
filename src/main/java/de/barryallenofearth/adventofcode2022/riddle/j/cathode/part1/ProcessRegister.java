@@ -10,7 +10,7 @@ public class ProcessRegister {
 
 	public static final String NOOP = "noop";
 
-	public static int determineTotalSignalStrength(int startingPoint, int stepSize, int maxValue) throws IOException, URISyntaxException {
+	public static int determineTotalSignalStrength(int startingPoint, int stepSize, int maxValue) {
 		int totalSignalStrength = 0;
 		final List<String> strings = RiddleFileReader.readAllLines("riddle-10.txt");
 		int registerValue = 1;

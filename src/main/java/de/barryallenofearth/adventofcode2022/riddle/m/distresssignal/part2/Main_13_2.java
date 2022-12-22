@@ -15,7 +15,7 @@ public class Main_13_2 {
 
 	public static final String DIVIDER_6 = "[[6]]";
 
-	public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) {
 		final List<SignalComponent> signalComponents = ReadSignals.readSignals();
 		final List<SignalComponent> allSubSignals = new ArrayList<>();
 		final SignalComponent signalComponent1 = SignalParser.parseSignal(DIVIDER_2, allSubSignals);
