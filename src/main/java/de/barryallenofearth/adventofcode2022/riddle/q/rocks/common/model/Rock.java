@@ -5,11 +5,11 @@ import lombok.Data;
 import java.util.*;
 
 @Data
-public class Shape {
+public class Rock {
 
     private final List<Coordinates> components;
 
-    public Shape(Coordinates startingCoordinates, RockType rockType) {
+    public Rock(Coordinates startingCoordinates, RockType rockType) {
         List<Coordinates> components = new ArrayList<>();
         for (Coordinates component : rockType.getComponents()) {
             components.add(new Coordinates(component.getX() + startingCoordinates.getX(), component.getY() + startingCoordinates.getY()));

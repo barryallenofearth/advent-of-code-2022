@@ -1,42 +1,17 @@
 package de.barryallenofearth.adventofcode2022.riddle.q.rocks.part1;
 
-import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.Coordinates;
-import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.MoveType;
-import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.RockType;
-import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.Shape;
-import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
+import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.*;
+import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.util.HandleFallingRocks;
 
 public class Main_17_1 {
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
 
+        final Cave cave = new Cave();
+        HandleFallingRocks.handleFallingRocks(cave, 2022);
 
-        for (MoveType moveType : MoveType.values()) {
-            final Shape cross = new Shape(new Coordinates(1, 1), RockType.CROSS);
-            cross.move(moveType);
-            printShape(cross);
-            System.out.println();
-            cross.reverse(moveType);
-            printShape(cross);
-            System.out.println();
-        }
-
+        System.out.println("The maximum height reached in the cave is: " + (cave.getCurrentRockHeight() + 1));
     }
 
-    private static void printShape(Shape cross) {
-        for (int y = 6; y >= 0; y--) {
-            for (int x = 0; x < 7; x++) {
-                final Coordinates currentCoordinate = new Coordinates(x, y);
-                if (cross.getComponents().contains(currentCoordinate)) {
-                    System.out.print("#");
-                } else {
-                    System.out.print(".");
-                }
-            }
-            System.out.println(y);
-        }
-    }
+
 }
