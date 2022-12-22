@@ -1,10 +1,10 @@
-package de.barryallenofearth.adventofcode2022.riddle.r.common.util;
+package de.barryallenofearth.adventofcode2022.riddle.r.part1;
 
 import de.barryallenofearth.adventofcode2022.riddle.r.common.model.Cube;
 
 import java.util.List;
 
-public class NeighborCounter {
+public class FreeSidesCounter {
 
     public static long countFreeSides(List<Cube> cubes) {
         long freeSides = 0;
