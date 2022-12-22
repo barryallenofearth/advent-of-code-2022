@@ -15,9 +15,9 @@ public class HandleFallingRocks {
                 System.out.println(rockCount + ": " + ((double) rockCount) / numberOfRocks * 100. + "% processed");
             }
             lastMovementIndex = RockMover.handleNewRock(rockCount, lastMovementIndex, cave, gasStreams);
-//            printCave(cave);
-//            System.out.println();
         }
+        printCave(cave);
+        System.out.println();
 
 
     }
@@ -44,8 +44,10 @@ public class HandleFallingRocks {
                 final Coordinates currentCoordinate = new Coordinates(x, y);
                 if (x == Cave.X_LEFT_BORDER || x == Cave.X_RIGHT_BORDER) {
                     System.out.print("|");
-                } else if (cave.getOccupiedFields().contains(currentCoordinate) || rock.getComponents().contains(currentCoordinate)) {
+                } else if (cave.getOccupiedFields().contains(currentCoordinate)) {
                     System.out.print("#");
+                } else if (rock.getComponents().contains(currentCoordinate)) {
+                    System.out.print("@");
                 } else {
                     System.out.print(".");
                 }

@@ -6,20 +6,16 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MoveType {
-    LEFT('<', new Coordinates(-1, 0)),
-    RIGHT('>', new Coordinates(1, 0)),
-    DOWN(null, new Coordinates(0, -1));
-
-    private final Character key;
+    LEFT(new Coordinates(-1, 0)),
+    RIGHT(new Coordinates(1, 0)),
+    DOWN(new Coordinates(0, -1));
 
     private final Coordinates move;
 
     public static MoveType getByKey(char key) {
-        for (MoveType moveType : MoveType.values()) {
-            if (key == moveType.getKey()) {
-                return moveType;
-            }
+        if (key == '<') {
+            return LEFT;
         }
-        return null;
+        return RIGHT;
     }
 }

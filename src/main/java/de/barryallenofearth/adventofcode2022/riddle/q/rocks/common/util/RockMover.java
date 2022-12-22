@@ -8,23 +8,9 @@ public class RockMover {
         long startY = cave.getCurrentRockHeight() + 1;//start 3 steps lower and only perform horizontal movement since no collisions are possible
         final RockType rockType = RockType.values()[(int) (rockIndex % RockType.values().length)];
 
-
-        MoveType moveType = null;
         final Rock rock = new Rock(new Coordinates(startX, startY), rockType);
-        for (int horizontalSteps = 0; horizontalSteps < 3; horizontalSteps++) {
-            final int ventIndex = ((int) (lastMovementIndex / 2)) % gasStreams.length();
-            if (ventIndex == 0) {
-                lastMovementIndex = 0;
-            }
-            moveType = MoveType.getByKey(gasStreams.charAt(ventIndex));
-            lastMovementIndex++;
-            lastMovementIndex++;
-            rock.move(moveType);
-            if (isInBorderCollision(rock)) {
-                rock.reverse(moveType);
-            }
-        }
-
+        lastMovementIndex = initialHorizontalMoves(lastMovementIndex, gasStreams, rock);
+        MoveType moveType = null;
         do {
 
             if (lastMovementIndex % 2 == 0) {
@@ -54,6 +40,26 @@ public class RockMover {
 
         return lastMovementIndex;
 
+    }
+
+    private static long initialHorizontalMoves(long lastMovementIndex, String gasStreams, Rock rock) {
+        //3 vertical steps and alternating with 3 horizontal steps and then again horizontal with collision probability
+        for (int horizontalSteps = 0; horizontalSteps < 4; horizontalSteps++) {
+            final int ventIndex = ((int) (lastMovementIndex / 2)) % gasStreams.length();
+            if (ventIndex == 0) {
+                lastMovementIndex = 0;
+            }
+            MoveType horizontalMove = MoveType.getByKey(gasStreams.charAt(ventIndex));
+            lastMovementIndex++;
+            if (horizontalSteps != 3) {
+                lastMovementIndex++;
+            }
+            rock.move(horizontalMove);
+            if (isInBorderCollision(rock)) {
+                rock.reverse(horizontalMove);
+            }
+        }
+        return lastMovementIndex;
     }
 
     public static boolean isCollidingHorizontally(Rock rock, Cave cave) {
