@@ -5,14 +5,20 @@ import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.Coordin
 import de.barryallenofearth.adventofcode2022.riddle.q.rocks.common.model.Rock;
 import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class HandleFallingRocks {
+
+    public static final int STEPS_TO_DISPLAY = 1_000_000;
 
     public static void handleFallingRocks(Cave cave, long numberOfRocks) {
         final String gasStreams = RiddleFileReader.readAllLines("riddle-17.txt").get(0);
         long lastMovementIndex = 0;
+        final LocalDateTime startingTime = LocalDateTime.now();
         for (long rockCount = 0; rockCount < numberOfRocks; rockCount++) {
-            if (rockCount % 10_000 == 0) {
-                System.out.println(rockCount + ": " + ((double) rockCount) / numberOfRocks * 100. + "% processed");
+            if (rockCount % STEPS_TO_DISPLAY == 0) {
+                System.out.println(Duration.between(startingTime, LocalDateTime.now()).getSeconds() + "s " + rockCount / STEPS_TO_DISPLAY + "x10^6: " + ((double) rockCount) / numberOfRocks * 100. + "% processed");
             }
             lastMovementIndex = RockMover.handleNewRock(rockCount, lastMovementIndex, cave, gasStreams);
         }

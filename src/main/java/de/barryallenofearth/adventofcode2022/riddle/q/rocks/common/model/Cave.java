@@ -21,30 +21,24 @@ public class Cave {
         occupiedFields.addAll(shape.getComponents());
 
         final long[] minHeight = {Integer.MAX_VALUE};
+
+        currentRockHeight = 0;
         for (long x = X_LEFT_BORDER + 1; x < X_RIGHT_BORDER - 1; x++) {
             final long highestHeightInColumn = getHighestHeightInColumn(x);
             if (highestHeightInColumn < minHeight[0]) {
                 minHeight[0] = highestHeightInColumn;
+            } else if (highestHeightInColumn > currentRockHeight) {
+                currentRockHeight = highestHeightInColumn;
             }
         }
 
         occupiedFields = occupiedFields.stream()
                 .filter(coordinates -> coordinates.getY() >= minHeight[0])
                 .collect(Collectors.toSet());
-        determineMaxHeight();
     }
 
     private long getHighestHeightInColumn(long x) {
         return occupiedFields.stream().filter(coordinates -> coordinates.getX() == x).mapToLong(Coordinates::getY).max().orElse(-1);
     }
 
-    private void determineMaxHeight() {
-        currentRockHeight = 0;
-        for (Coordinates occupiedField : occupiedFields) {
-            if (occupiedField.getY() > currentRockHeight) {
-                currentRockHeight = occupiedField.getY();
-            }
-        }
-
-    }
 }
