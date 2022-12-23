@@ -9,12 +9,12 @@ import java.util.List;
 
 public class Main_19_1 {
 
-    public static void main(String[] args) {
-        final List<BluePrint> bluePrintList = BluePrintReader.readBluePrints();
-        for (BluePrint bluePrint : bluePrintList) {
-            final RobotsAndFactory robotsAndFactory = RunFactoryByBluePrint.runFactory(bluePrint);
-            System.out.println(robotsAndFactory.getFactory().getGeodes() + " geodes produced.");
-        }
-        System.out.println(bluePrintList);
-    }
+	public static void main(String[] args) {
+		final List<BluePrint> bluePrintList = BluePrintReader.readBluePrints();
+		for (BluePrint bluePrint : bluePrintList) {
+			final RobotsAndFactory robotsAndFactory = RunFactoryByBluePrint.runFactory(bluePrint);
+			System.out.println(robotsAndFactory.getFactory().getGeodes() + " geodes produced.");
+		}
+		System.out.println(bluePrintList);
+	}
 }
