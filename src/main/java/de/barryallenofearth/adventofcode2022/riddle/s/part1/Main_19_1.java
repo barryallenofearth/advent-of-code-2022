@@ -11,10 +11,15 @@ public class Main_19_1 {
 
 	public static void main(String[] args) {
 		final List<BluePrint> bluePrintList = BluePrintReader.readBluePrints();
+		int blueprintID = 1;
+		int totalQualityLevel = 0;
 		for (BluePrint bluePrint : bluePrintList) {
 			final RobotsAndFactory robotsAndFactory = RunFactoryByBluePrint.runFactory(bluePrint);
-			System.out.println(robotsAndFactory.getFactory().getGeodes() + " geodes produced.");
+			final int numberOfGeodes = robotsAndFactory.getFactory().getGeodes();
+			totalQualityLevel += blueprintID++ * numberOfGeodes;
+			System.out.println(numberOfGeodes + " geodes produced.");
+			System.out.println();
 		}
-		System.out.println(bluePrintList);
+		System.out.println("total quality level is " + totalQualityLevel);
 	}
 }
