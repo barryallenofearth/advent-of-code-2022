@@ -27,7 +27,7 @@ public class RobotsAndFactory {
 		this.obsidianRobots = robotsAndFactory.getObsidianRobots();
 		this.geodeRobots = robotsAndFactory.getGeodeRobots();
 
-		this.robotsInConstruction = robotsAndFactory.getRobotsInConstruction();
+		this.robotsInConstruction = robotsAndFactory.getRobotsInConstruction().isEmpty() ? Optional.empty() : Optional.of(robotsAndFactory.getRobotsInConstruction().get());
 
 		this.currentMinute = robotsAndFactory.getCurrentMinute();
 

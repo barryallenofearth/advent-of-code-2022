@@ -7,22 +7,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BluePrint {
 
-    private final ItemsConsumed oreRobot;
+	private final String orginalString;
 
-    private final ItemsConsumed clayRobot;
+	private final ItemsConsumed oreRobot;
 
-    private final ItemsConsumed obsidianRobot;
+	private final ItemsConsumed clayRobot;
 
-    private final ItemsConsumed geodeRobot;
+	private final ItemsConsumed obsidianRobot;
 
-    @Data
-    @RequiredArgsConstructor
-    public static class ItemsConsumed {
-        private final int ore;
+	private final ItemsConsumed geodeRobot;
 
-        private final int clay;
+	@Data
+	@RequiredArgsConstructor
+	public static class ItemsConsumed {
+		private final int ore;
 
-        private final int obsidian;
+		private final int clay;
 
-    }
+		private final int obsidian;
+
+	}
 }
