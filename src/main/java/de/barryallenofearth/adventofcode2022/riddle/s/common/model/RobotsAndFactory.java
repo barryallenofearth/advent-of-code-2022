@@ -10,44 +10,91 @@ import java.util.Optional;
 @Data
 public class RobotsAndFactory {
 
-	public RobotsAndFactory(Factory factory) {
-		this.factory = factory;
+	public RobotsAndFactory(BluePrint bluePrint) {
+		this.bluePrint = bluePrint;
+		logMessages = new StringBuffer();
 	}
 
 	public RobotsAndFactory(RobotsAndFactory robotsAndFactory) {
-		this.factory = new Factory(robotsAndFactory.getFactory().getBluePrint());
-		this.factory.setOre(robotsAndFactory.getFactory().getOre());
-		this.factory.setClay(robotsAndFactory.getFactory().getClay());
-		this.factory.setObsidian(robotsAndFactory.getFactory().getOre());
-		this.factory.setGeodes(robotsAndFactory.getFactory().getGeodes());
+		this.bluePrint = robotsAndFactory.getBluePrint();
+		this.ore = robotsAndFactory.getOre();
+		this.clay = robotsAndFactory.getClay();
+		this.obsidian = robotsAndFactory.getObsidian();
+		this.geodes = robotsAndFactory.getGeodes();
 
-		robotsAndFactory.getOreRobots().forEach(robot -> getOreRobots().add(new Robot(Factory::addOre)));
-		robotsAndFactory.getClayRobots().forEach(robot -> getClayRobots().add(new Robot(Factory::addClay)));
-		robotsAndFactory.getObsidianRobots().forEach(robot -> getObsidianRobots().add(new Robot(Factory::addObsidian)));
-		robotsAndFactory.getGeodeRobots().forEach(robot -> getGeodeRobots().add(new Robot(Factory::addGeode)));
+		this.oreRobots = robotsAndFactory.getOreRobots();
+		this.clayRobots = robotsAndFactory.getClayRobots();
+		this.obsidianRobots = robotsAndFactory.getObsidianRobots();
+		this.geodeRobots = robotsAndFactory.getGeodeRobots();
+
 		this.robotsInConstruction = robotsAndFactory.getRobotsInConstruction();
 
 		this.currentMinute = robotsAndFactory.getCurrentMinute();
 
-		this.logMessages.addAll(robotsAndFactory.getLogMessages());
+		this.logMessages = new StringBuffer(robotsAndFactory.getLogMessages());
 	}
 
-	private final Factory factory;
+	private final BluePrint bluePrint;
 
 	private int currentMinute = 1;
 
-	private final List<String> logMessages = new ArrayList<>();
+	private final StringBuffer logMessages;
 
-	private final List<Robot> oreRobots = new ArrayList<>() {{
-		add(new Robot(Factory::addOre));
-	}};
+	private int oreRobots = 1;
 
-	private final List<Robot> clayRobots = new ArrayList<>();
+	private int clayRobots = 0;
 
-	private final List<Robot> obsidianRobots = new ArrayList<>();
+	private int obsidianRobots = 0;
 
-	private final List<Robot> geodeRobots = new ArrayList<>();
+	private int geodeRobots = 0;
 
-	private Optional<RobotInConstruction> robotsInConstruction = Optional.empty();
+	private Optional<Robot> robotsInConstruction = Optional.empty();
+
+	private int ore = 0;
+
+	private int clay = 0;
+
+	private int obsidian = 0;
+
+	private int geodes = 0;
+
+	public void addOre() {
+		ore++;
+	}
+
+	public void addClay() {
+		clay++;
+	}
+
+	public void addObsidian() {
+		obsidian++;
+	}
+
+	public void addGeode() {
+		geodes++;
+	}
+
+	public void addRobot(Robot robot) {
+		final BluePrint.ItemsConsumed costs = robot.getCosts().apply(this.bluePrint);
+		this.ore -= costs.getOre();
+		this.clay -= costs.getClay();
+		this.obsidian -= costs.getObsidian();
+
+		this.robotsInConstruction = Optional.of(robot);
+		logMessages.append("start producing a ").append(robot.getName()).append("\n");
+	}
+
+	public boolean testIfBuildable(Robot robot) {
+		final BluePrint.ItemsConsumed costs = robot.getCosts().apply(this.bluePrint);
+		return costs.getOre() <= this.ore && costs.getClay() <= this.clay && costs.getObsidian() <= this.obsidian;
+	}
+
+	public void collectGoods() {
+		this.ore += this.oreRobots;
+		this.clay += this.clayRobots;
+		this.obsidian += this.obsidianRobots;
+		this.geodes += this.geodeRobots;
+
+	}
 
 }

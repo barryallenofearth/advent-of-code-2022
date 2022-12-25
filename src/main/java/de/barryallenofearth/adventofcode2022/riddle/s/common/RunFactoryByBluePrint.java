@@ -11,50 +11,50 @@ import java.util.stream.Stream;
 
 public class RunFactoryByBluePrint {
 	public static RobotsAndFactory runFactory(BluePrint bluePrint) {
-		final RobotsAndFactory robotsAndFactory = new RobotsAndFactory(new Factory(bluePrint));
+		RobotsAndFactory currentRobotsAndFactory = new RobotsAndFactory(bluePrint);
 
 		Stack<RobotsAndFactory> openBranches = new Stack<>();
-		openBranches.add(robotsAndFactory);
+		openBranches.add(currentRobotsAndFactory);
 
-		RobotsAndFactory maxRobotsAndFactory = new RobotsAndFactory(new Factory(bluePrint));
+		RobotsAndFactory maxRobotsAndFactory = currentRobotsAndFactory;
+		int countComplete = 0;
 		while (!openBranches.empty()) {
 
-			final RobotsAndFactory currentRobotsAndFactory = openBranches.pop();
+			currentRobotsAndFactory = openBranches.pop();
 
 			while (currentRobotsAndFactory.getCurrentMinute() <= 24) {
-				currentRobotsAndFactory.getLogMessages().add("\n== Minute " + currentRobotsAndFactory.getCurrentMinute() + " ==");
+				currentRobotsAndFactory.getLogMessages().append("\n== Minute ").append(currentRobotsAndFactory.getCurrentMinute()).append(" ==\n");
 
 				if (currentRobotsAndFactory.getRobotsInConstruction().isPresent()) {
-					final RobotInConstruction robotInConstruction = currentRobotsAndFactory.getRobotsInConstruction().get();
-					robotInConstruction.getAddRobot().accept(robotsAndFactory, robotInConstruction.getRobot());
+					final Robot robotInConstruction = currentRobotsAndFactory.getRobotsInConstruction().get();
+					robotInConstruction.getAddRobot().accept(currentRobotsAndFactory);
 					currentRobotsAndFactory.setRobotsInConstruction(Optional.empty());
 				}
-
-				Optional<Robot> optional = produceRobot(robotsAndFactory, Factory::produceGeodeRobot, ((robotsAndFactory1, robot) -> robotsAndFactory1.getGeodeRobots().add(robot)));
-				if (optional.isEmpty()) {
-					if (isObsidianRobotBuildable(bluePrint, currentRobotsAndFactory.getFactory())) {
-						saveMaterials(openBranches, currentRobotsAndFactory);
-						produceRobot(robotsAndFactory, Factory::produceObsidianRobot, ((robotsAndFactory1, robot) -> robotsAndFactory1.getObsidianRobots().add(robot)));
-						robotsAndFactory.getLogMessages().add("start producing a obsidian collecting robot");
-					}
-					if (isClayRobotBuildable(bluePrint, currentRobotsAndFactory.getFactory()) && currentRobotsAndFactory.getRobotsInConstruction().isEmpty()) {
-						saveMaterials(openBranches, currentRobotsAndFactory);
-						produceRobot(robotsAndFactory, Factory::produceClayRobot, ((robotsAndFactory1, robot) -> robotsAndFactory1.getClayRobots().add(robot)));
-						robotsAndFactory.getLogMessages().add("start producing a clay collecting robot");
-					}
-					if (isOreRobotBuildable(bluePrint, currentRobotsAndFactory.getFactory()) && currentRobotsAndFactory.getRobotsInConstruction().isEmpty()) {
-						saveMaterials(openBranches, currentRobotsAndFactory);
-						produceRobot(robotsAndFactory, Factory::produceOreRobot, ((robotsAndFactory1, robot) -> robotsAndFactory1.getOreRobots().add(robot)));
-						robotsAndFactory.getLogMessages().add("start producing a ore collecting robot");
-					}
+				for (Robot robot : Robot.values()) {
+					testAndBuildRobot(currentRobotsAndFactory, openBranches, robot);
 				}
-				collectOreAndPrint(robotsAndFactory);
+				collectOreAndPrint(currentRobotsAndFactory);
 			}
-			if (currentRobotsAndFactory.getFactory().getGeodes() > maxRobotsAndFactory.getFactory().getGeodes()) {
+			if (currentRobotsAndFactory.getGeodes() > maxRobotsAndFactory.getGeodes()) {
 				maxRobotsAndFactory = currentRobotsAndFactory;
+				System.out.println("new max way found:" + currentRobotsAndFactory.getGeodes());
+			}
+			++countComplete;
+			if (countComplete % 1_000_000 == 0) {
+				System.out.println(countComplete);
 			}
 		}
+
+		System.out.println(maxRobotsAndFactory.getLogMessages());
+		System.out.println(countComplete + " branches tested.");
 		return maxRobotsAndFactory;
+	}
+
+	static void testAndBuildRobot(RobotsAndFactory currentRobotsAndFactory, Stack<RobotsAndFactory> openBranches, Robot oreRobot) {
+		if (currentRobotsAndFactory.getRobotsInConstruction().isEmpty() && currentRobotsAndFactory.testIfBuildable(oreRobot)) {
+			saveMaterials(openBranches, currentRobotsAndFactory);
+			currentRobotsAndFactory.addRobot(oreRobot);
+		}
 	}
 
 	static void saveMaterials(Stack<RobotsAndFactory> stack, RobotsAndFactory currentRobotsAndFactory) {
@@ -65,37 +65,15 @@ public class RunFactoryByBluePrint {
 	}
 
 	static void collectOreAndPrint(RobotsAndFactory robotsAndFactory) {
-		Stream.of(robotsAndFactory.getOreRobots(),
-				robotsAndFactory.getClayRobots(),
-				robotsAndFactory.getObsidianRobots(),
-				robotsAndFactory.getGeodeRobots())
-				.flatMap(List::stream)
-				.forEach(robot -> robot.getAddToFactory().accept(robotsAndFactory.getFactory()));
+		robotsAndFactory.collectGoods();
 
-		robotsAndFactory.getLogMessages()
-				.add(robotsAndFactory.getFactory().getOre() + " ore, " + robotsAndFactory.getFactory().getClay() + " clay, " + robotsAndFactory.getFactory().getObsidian() + " obsidian, " + robotsAndFactory.getFactory().getGeodes() + " geodes.");
-		robotsAndFactory.getLogMessages()
-				.add(robotsAndFactory.getOreRobots().size() + " ore robots, " + robotsAndFactory.getClayRobots().size() + " clay robots, " + robotsAndFactory.getObsidianRobots().size() + " obsidian robots, " + robotsAndFactory
-						.getGeodeRobots().size() + " geode robots.");
+		robotsAndFactory.getLogMessages().append(robotsAndFactory.getOre()).append(" ore, ").append(robotsAndFactory.getClay()).append(" clay, ").append(robotsAndFactory.getObsidian()).append(" obsidian, ").append(robotsAndFactory.getGeodes())
+				.append(" geodes.\n");
+		robotsAndFactory.getLogMessages().append(robotsAndFactory.getOreRobots()).append(" ore robots, ").append(robotsAndFactory.getClayRobots()).append(" clay robots, ").append(robotsAndFactory.getObsidianRobots())
+				.append(" obsidian robots, ").append(robotsAndFactory
+				.getGeodeRobots()).append(" geode robots.\n");
 
 		robotsAndFactory.setCurrentMinute(robotsAndFactory.getCurrentMinute() + 1);
 	}
 
-	static boolean isObsidianRobotBuildable(BluePrint bluePrint, Factory factory) {
-		return factory.getClay() - bluePrint.getObsidianRobot().getClay() >= 0 && factory.getOre() - bluePrint.getObsidianRobot().getOre() >= 0;
-	}
-
-	static boolean isClayRobotBuildable(BluePrint bluePrint, Factory factory) {
-		return factory.getOre() - bluePrint.getClayRobot().getOre() >= 0;
-	}
-
-	static boolean isOreRobotBuildable(BluePrint bluePrint, Factory factory) {
-		return factory.getOre() - bluePrint.getOreRobot().getOre() >= 0;
-	}
-
-	private static Optional<Robot> produceRobot(RobotsAndFactory robotsAndFactory, Function<Factory, Optional<Robot>> createRobot, BiConsumer<RobotsAndFactory, Robot> addRobot) {
-		final Optional<Robot> robotProduced = createRobot.apply(robotsAndFactory.getFactory());
-		robotProduced.ifPresent(robot -> robotsAndFactory.setRobotsInConstruction(Optional.of(new RobotInConstruction(robot, addRobot))));
-		return robotProduced;
-	}
 }
