@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Stack;
 
 public class RunFactoryByBluePrint {
-	public static RobotsAndFactory runFactory(BluePrint bluePrint) {
+	public static RobotsAndFactory runFactory(BluePrint bluePrint, int maxMinutes) {
 
 		RobotsAndFactory currentRobotsAndFactory = new RobotsAndFactory(bluePrint);
 
@@ -26,17 +26,17 @@ public class RunFactoryByBluePrint {
 
 			currentRobotsAndFactory = openBranches.pop();
 
-			while (currentRobotsAndFactory.getCurrentMinute() <= 24) {
+			while (currentRobotsAndFactory.getCurrentMinute() <= maxMinutes) {
 				if (currentRobotsAndFactory.getRobotsInConstruction().isPresent()) {
 					currentRobotsAndFactory.setOreRobotSkipped(false);
 					currentRobotsAndFactory.setClayRobotSkipped(false);
 					currentRobotsAndFactory.setObsidianRobotSkipped(false);
 				}
-				if (abortBranch(maxGeodes, currentRobotsAndFactory)) {
+				if (abortBranch(maxGeodes, currentRobotsAndFactory, maxMinutes)) {
 					break;
 				}
 				printMinute(currentRobotsAndFactory);
-				buildRobots(currentRobotsAndFactory, openBranches, maxOreRequiredForAnyRobot);
+				buildRobots(currentRobotsAndFactory, openBranches, maxOreRequiredForAnyRobot, maxMinutes);
 				collectGoodsAndPrint(currentRobotsAndFactory);
 				finishRobotConstruction(currentRobotsAndFactory);
 
@@ -59,7 +59,7 @@ public class RunFactoryByBluePrint {
 			if (countComplete % 1_000_000 == 0) {
 				System.out.println(countComplete / 1_000_000 + "x10^6 branches tested.");
 			}
-			if (countComplete > 30_000_000) {
+			if (countComplete > 300_000_000) {
 				break;
 			}
 		}
@@ -85,15 +85,15 @@ public class RunFactoryByBluePrint {
 		}
 	}
 
-	static void buildRobots(RobotsAndFactory currentRobotsAndFactory, Stack<RobotsAndFactory> openNodes, int maxOreRequiredForAnyRobot) {
-		if (currentRobotsAndFactory.getCurrentMinute() == 24) {
+	static void buildRobots(RobotsAndFactory currentRobotsAndFactory, Stack<RobotsAndFactory> openNodes, int maxOreRequiredForAnyRobot, int maxMinutes) {
+		if (currentRobotsAndFactory.getCurrentMinute() == maxMinutes) {
 			return;
 		}
 		if (currentRobotsAndFactory.testIfBuildable(Robot.GEODE_ROBOT)) {
 			currentRobotsAndFactory.addRobot(Robot.GEODE_ROBOT);
 			return;
 		}
-		if (currentRobotsAndFactory.getCurrentMinute() == 23) {
+		if (currentRobotsAndFactory.getCurrentMinute() == maxMinutes - 1) {
 			return;
 		}
 
@@ -132,9 +132,9 @@ public class RunFactoryByBluePrint {
 		robotsAndFactory.setCurrentMinute(robotsAndFactory.getCurrentMinute() + 1);
 	}
 
-	private static boolean abortBranch(int maxGeodes, RobotsAndFactory currentRobotsAndFactory) {
+	private static boolean abortBranch(int maxGeodes, RobotsAndFactory currentRobotsAndFactory, int maxMinutes) {
 		//assume you can somehow build a geode robot every turn now. If the amount of geodes collected is still below the maximum you should stop
-		final int remainingMinutes = 24 - currentRobotsAndFactory.getCurrentMinute() + 1;
+		final int remainingMinutes = maxMinutes - currentRobotsAndFactory.getCurrentMinute() + 1;
 
 		int maxGeodesObtainable = currentRobotsAndFactory.getGeodes() + currentRobotsAndFactory.getGeodeRobots() * remainingMinutes + (remainingMinutes * (remainingMinutes - 1)) / 2;
 		if (maxGeodesObtainable <= maxGeodes) {
@@ -142,7 +142,7 @@ public class RunFactoryByBluePrint {
 			return true;
 		}
 		if (currentRobotsAndFactory.getCurrentMinute() > 5 && currentRobotsAndFactory.getObsidian() == 0 && currentRobotsAndFactory.getGeodeRobots() == 0) {
-			int maxObsidianOptainable = currentRobotsAndFactory.getObsidian() * (remainingMinutes - 1) + (remainingMinutes - 1) * (remainingMinutes - 2) / 2;
+			int maxObsidianOptainable = currentRobotsAndFactory.getObsidian() * (remainingMinutes - 1) + ((remainingMinutes - 1) * (remainingMinutes - 2)) / 2;
 			if (maxObsidianOptainable < currentRobotsAndFactory.getBluePrint().getGeodeRobot().getObsidian()) {
 				currentRobotsAndFactory.getLogMessages().append("aborted due to obsidian conditions");
 				return true;

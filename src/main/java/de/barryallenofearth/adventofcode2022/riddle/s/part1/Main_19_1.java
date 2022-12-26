@@ -16,7 +16,7 @@ public class Main_19_1 {
 		for (BluePrint bluePrint : bluePrintList) {
 			System.out.println("Starting to evaluate bluepring " + blueprintID);
 			System.out.println(bluePrint.getOrginalString());
-			final RobotsAndFactory robotsAndFactory = RunFactoryByBluePrint.runFactory(bluePrint);
+			final RobotsAndFactory robotsAndFactory = RunFactoryByBluePrint.runFactory(bluePrint, 24);
 			final int numberOfGeodes = robotsAndFactory.getGeodes();
 			totalQualityLevel += blueprintID++ * numberOfGeodes;
 			System.out.println(numberOfGeodes + " geodes produced.");
