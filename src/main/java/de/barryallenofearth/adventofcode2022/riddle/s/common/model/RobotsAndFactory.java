@@ -27,6 +27,10 @@ public class RobotsAndFactory {
 		this.obsidianRobots = robotsAndFactory.getObsidianRobots();
 		this.geodeRobots = robotsAndFactory.getGeodeRobots();
 
+		this.isOreRobotSkipped = robotsAndFactory.isOreRobotSkipped();
+		this.isClayRobotSkipped = robotsAndFactory.isClayRobotSkipped();
+		this.isObsidianRobotSkipped = robotsAndFactory.isObsidianRobotSkipped();
+
 		this.robotsInConstruction = robotsAndFactory.getRobotsInConstruction().isEmpty() ? Optional.empty() : Optional.of(robotsAndFactory.getRobotsInConstruction().get());
 
 		this.currentMinute = robotsAndFactory.getCurrentMinute();
@@ -49,6 +53,12 @@ public class RobotsAndFactory {
 	private int geodeRobots = 0;
 
 	private Optional<Robot> robotsInConstruction = Optional.empty();
+
+	private boolean isObsidianRobotSkipped;
+
+	private boolean isClayRobotSkipped;
+
+	private boolean isOreRobotSkipped;
 
 	private int ore = 0;
 
@@ -87,14 +97,6 @@ public class RobotsAndFactory {
 	public boolean testIfBuildable(Robot robot) {
 		final BluePrint.ItemsConsumed costs = robot.getCosts().apply(this.bluePrint);
 		return costs.getOre() <= this.ore && costs.getClay() <= this.clay && costs.getObsidian() <= this.obsidian;
-	}
-
-	public void collectGoods() {
-		this.ore += this.oreRobots;
-		this.clay += this.clayRobots;
-		this.obsidian += this.obsidianRobots;
-		this.geodes += this.geodeRobots;
-
 	}
 
 }

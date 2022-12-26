@@ -1,6 +1,8 @@
 package de.barryallenofearth.adventofcode2022.riddle.s.common;
 
-import de.barryallenofearth.adventofcode2022.riddle.s.common.model.*;
+import de.barryallenofearth.adventofcode2022.riddle.s.common.model.BluePrint;
+import de.barryallenofearth.adventofcode2022.riddle.s.common.model.Robot;
+import de.barryallenofearth.adventofcode2022.riddle.s.common.model.RobotsAndFactory;
 
 import java.util.Optional;
 import java.util.Stack;
@@ -16,25 +18,33 @@ public class RunFactoryByBluePrint {
 		RobotsAndFactory maxRobotsAndFactory = currentRobotsAndFactory;
 		int maxGeodes = 0;
 		int countComplete = 0;
-		while (!openBranches.empty()) {
+		while (!openBranches.isEmpty()) {
 
 			currentRobotsAndFactory = openBranches.pop();
-			if (abortBranch(maxGeodes, currentRobotsAndFactory)) {
-				continue;
-			}
 
 			while (currentRobotsAndFactory.getCurrentMinute() <= 24) {
-				currentRobotsAndFactory.getLogMessages().append("\n== Minute ").append(currentRobotsAndFactory.getCurrentMinute()).append(" ==\n");
-
 				if (currentRobotsAndFactory.getRobotsInConstruction().isPresent()) {
-					currentRobotsAndFactory.getRobotsInConstruction().get().getAddRobot().accept(currentRobotsAndFactory);
-					currentRobotsAndFactory.setRobotsInConstruction(Optional.empty());
+					currentRobotsAndFactory.setOreRobotSkipped(false);
+					currentRobotsAndFactory.setClayRobotSkipped(false);
+					currentRobotsAndFactory.setObsidianRobotSkipped(false);
 				}
-
-				for (Robot robot : Robot.values()) {
-					testAndBuildRobot(currentRobotsAndFactory, openBranches, robot);
+				if (abortBranch(maxGeodes, currentRobotsAndFactory)) {
+					break;
 				}
+				printMinute(currentRobotsAndFactory);
+				buildRobots(currentRobotsAndFactory, openBranches);
 				collectGoodsAndPrint(currentRobotsAndFactory);
+				finishRobotConstruction(currentRobotsAndFactory);
+
+				currentRobotsAndFactory.getLogMessages().append(currentRobotsAndFactory.getOreRobots()).append(" ore robots, ").append(currentRobotsAndFactory.getClayRobots()).append(" clay robots, ")
+						.append(currentRobotsAndFactory.getObsidianRobots())
+						.append(" obsidian robots, ").append(currentRobotsAndFactory
+						.getGeodeRobots()).append(" geode robots.\n");
+
+				currentRobotsAndFactory.setOreRobotSkipped(false);
+				currentRobotsAndFactory.setClayRobotSkipped(false);
+				currentRobotsAndFactory.setObsidianRobotSkipped(false);
+
 			}
 			if (currentRobotsAndFactory.getGeodes() > maxGeodes) {
 				maxRobotsAndFactory = currentRobotsAndFactory;
@@ -45,6 +55,9 @@ public class RunFactoryByBluePrint {
 			if (countComplete % 1_000_000 == 0) {
 				System.out.println(countComplete / 1_000_000 + "x10^6 branches tested.");
 			}
+			if (countComplete > 30_000_000) {
+				break;
+			}
 		}
 
 		System.out.println(maxRobotsAndFactory.getLogMessages());
@@ -52,52 +65,78 @@ public class RunFactoryByBluePrint {
 		return maxRobotsAndFactory;
 	}
 
-	static void testAndBuildRobot(RobotsAndFactory currentRobotsAndFactory, Stack<RobotsAndFactory> openBranches, Robot robot) {
-		//no point in building a robot in last turn
+	static void finishRobotConstruction(RobotsAndFactory currentRobotsAndFactory) {
+		if (currentRobotsAndFactory.getRobotsInConstruction().isPresent()) {
+			final Robot robot = currentRobotsAndFactory.getRobotsInConstruction().get();
+			robot.getAddRobot().accept(currentRobotsAndFactory);
+			currentRobotsAndFactory.setRobotsInConstruction(Optional.empty());
+			currentRobotsAndFactory.getLogMessages().append("Finished constructing ").append(robot.getName()).append("\n");
+
+		}
+	}
+
+	static void printMinute(RobotsAndFactory currentRobotsAndFactory) {
+		if (!currentRobotsAndFactory.isOreRobotSkipped() || !currentRobotsAndFactory.isClayRobotSkipped() || !currentRobotsAndFactory.isObsidianRobotSkipped()) {
+			currentRobotsAndFactory.getLogMessages().append("\n== Minute ").append(currentRobotsAndFactory.getCurrentMinute()).append(" ==\n");
+		}
+	}
+
+	static void buildRobots(RobotsAndFactory currentRobotsAndFactory, Stack<RobotsAndFactory> openNodes) {
 		if (currentRobotsAndFactory.getCurrentMinute() == 24) {
 			return;
 		}
-		//no point in build a non geode robot in second last turn.
-		if (currentRobotsAndFactory.getCurrentMinute() == 23 && robot != Robot.GEODE_ROBOT) {
+		if (currentRobotsAndFactory.testIfBuildable(Robot.GEODE_ROBOT)) {
+			currentRobotsAndFactory.addRobot(Robot.GEODE_ROBOT);
+			return;
+		}
+		if (currentRobotsAndFactory.getCurrentMinute() == 23) {
 			return;
 		}
 
-		if (currentRobotsAndFactory.testIfBuildable(robot)) {
-			//always build test robots if possible
-			if (robot != Robot.GEODE_ROBOT) {
-				saveMaterials(openBranches, currentRobotsAndFactory);
-			}
-			currentRobotsAndFactory.addRobot(robot);
+		testAndBuildRobot(currentRobotsAndFactory, openNodes, Robot.OBSIDIAN_ROBOT);
+		testAndBuildRobot(currentRobotsAndFactory, openNodes, Robot.CLAY_ROBOT);
+		testAndBuildRobot(currentRobotsAndFactory, openNodes, Robot.ORE_ROBOT);
+
+	}
+
+	private static void testAndBuildRobot(RobotsAndFactory currentRobotsAndFactory, Stack<RobotsAndFactory> openNodes, Robot clayRobot) {
+		if (currentRobotsAndFactory.getRobotsInConstruction().isEmpty() && !clayRobot.getIsRobotSkipped().test(currentRobotsAndFactory) && currentRobotsAndFactory.testIfBuildable(clayRobot)) {
+			//create branch where the robot was not constructed
+			final RobotsAndFactory newBranch = new RobotsAndFactory(currentRobotsAndFactory);
+			clayRobot.getSetRobotSkipped().accept(newBranch);
+			openNodes.add(newBranch);
+
+			currentRobotsAndFactory.addRobot(clayRobot);
 		}
 	}
 
-	static void saveMaterials(Stack<RobotsAndFactory> stack, RobotsAndFactory currentRobotsAndFactory) {
-		final RobotsAndFactory robotsAndFactory = new RobotsAndFactory(currentRobotsAndFactory);
-		stack.add(robotsAndFactory);
-		collectGoodsAndPrint(robotsAndFactory);
-
-	}
-
 	static void collectGoodsAndPrint(RobotsAndFactory robotsAndFactory) {
-		robotsAndFactory.collectGoods();
+		robotsAndFactory.setOre(robotsAndFactory.getOre() + robotsAndFactory.getOreRobots());
+		robotsAndFactory.setClay(robotsAndFactory.getClay() + robotsAndFactory.getClayRobots());
+		robotsAndFactory.setObsidian(robotsAndFactory.getObsidian() + robotsAndFactory.getObsidianRobots());
+		robotsAndFactory.setGeodes(robotsAndFactory.getGeodes() + robotsAndFactory.getGeodeRobots());
 
 		robotsAndFactory.getLogMessages().append(robotsAndFactory.getOre()).append(" ore, ").append(robotsAndFactory.getClay()).append(" clay, ").append(robotsAndFactory.getObsidian()).append(" obsidian, ").append(robotsAndFactory.getGeodes())
 				.append(" geodes.\n");
-		robotsAndFactory.getLogMessages().append(robotsAndFactory.getOreRobots()).append(" ore robots, ").append(robotsAndFactory.getClayRobots()).append(" clay robots, ").append(robotsAndFactory.getObsidianRobots())
-				.append(" obsidian robots, ").append(robotsAndFactory
-				.getGeodeRobots()).append(" geode robots.\n");
 
 		robotsAndFactory.setCurrentMinute(robotsAndFactory.getCurrentMinute() + 1);
 	}
 
 	private static boolean abortBranch(int maxGeodes, RobotsAndFactory currentRobotsAndFactory) {
 		//assume you can somehow build a geode robot every turn now. If the amount of geodes collected is still below the maximum you should stop
-		int maxGeodesImaginable = 0;
-		for (int minute = 0; minute < 24 - currentRobotsAndFactory.getCurrentMinute(); minute++) {
-			maxGeodesImaginable += currentRobotsAndFactory.getGeodeRobots() + minute;
-		}
-		if (maxGeodesImaginable <= maxGeodes) {
+		final int remainingMinutes = 24 - currentRobotsAndFactory.getCurrentMinute() + 1;
+		//TODO requires correction
+		int maxGeodesObtainable = currentRobotsAndFactory.getGeodes() + currentRobotsAndFactory.getGeodeRobots() * remainingMinutes + (remainingMinutes * (remainingMinutes - 1)) / 2;
+		if (maxGeodesObtainable <= maxGeodes) {
+			currentRobotsAndFactory.getLogMessages().append("aborted due to geode count conditions");
 			return true;
+		}
+		if (currentRobotsAndFactory.getCurrentMinute() > 5 && currentRobotsAndFactory.getObsidian() == 0 && currentRobotsAndFactory.getGeodeRobots() == 0) {
+			int maxObsidianOptainable = currentRobotsAndFactory.getObsidian() * (remainingMinutes - 1) + (remainingMinutes - 1) * (remainingMinutes - 2) / 2;
+			if (maxObsidianOptainable < currentRobotsAndFactory.getBluePrint().getGeodeRobot().getObsidian()) {
+				currentRobotsAndFactory.getLogMessages().append("aborted due to obsidian conditions");
+				return true;
+			}
 		}
 
 		return false;
