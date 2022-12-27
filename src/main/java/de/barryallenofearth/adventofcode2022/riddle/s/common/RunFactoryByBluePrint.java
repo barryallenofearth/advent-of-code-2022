@@ -100,10 +100,10 @@ public class RunFactoryByBluePrint {
 		if (currentRobotsAndFactory.getBluePrint().getGeodeRobot().getObsidian() > currentRobotsAndFactory.getObsidianRobots()) {
 			testAndBuildRobot(currentRobotsAndFactory, openNodes, Robot.OBSIDIAN_ROBOT);
 		}
-		if (currentRobotsAndFactory.getBluePrint().getObsidianRobot().getClay() > currentRobotsAndFactory.getClayRobots()) {
+		if (currentRobotsAndFactory.getBluePrint().getObsidianRobot().getClay() > currentRobotsAndFactory.getClayRobots() && !Robot.OBSIDIAN_ROBOT.getIsRobotSkipped().test(currentRobotsAndFactory)) {
 			testAndBuildRobot(currentRobotsAndFactory, openNodes, Robot.CLAY_ROBOT);
 		}
-		if (maxOreRequiredForAnyRobot > currentRobotsAndFactory.getOreRobots()) {
+		if (maxOreRequiredForAnyRobot > currentRobotsAndFactory.getOreRobots() && !Robot.OBSIDIAN_ROBOT.getIsRobotSkipped().test(currentRobotsAndFactory)) {
 			testAndBuildRobot(currentRobotsAndFactory, openNodes, Robot.ORE_ROBOT);
 		}
 
