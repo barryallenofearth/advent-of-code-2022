@@ -15,7 +15,7 @@ public class NumberSorter {
 		for (int index = 0; index < numberOfEntries; index++) {
 			printSequence(sequence);
 			final EntryWithId entry = getById(sequence, index);
-			System.out.println(entry);
+			//System.out.println(entry);
 
 			if (entry.getValue() >= 0) {
 				shiftPositiveValue(sequence, numberOfEntries, sequence.indexOf(entry), entry);
