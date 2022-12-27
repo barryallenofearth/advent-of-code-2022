@@ -43,20 +43,22 @@ public class NumberSorter {
 	static void shiftNegativeValue(List<EntryWithId> sequence, int numberOfEntries, int index, EntryWithId entry) {
 		//negative number is shifted below 0
 		sequence.remove(index);
-		if (Math.abs(entry.getValue()) >= index) {
-			int value = Math.abs(entry.getValue()) - (index - 1);
+		final int entryValue = entry.getValue() % (numberOfEntries - 1);
+		if (Math.abs(entryValue) >= index) {
+			int value = Math.abs(entryValue) - (index - 1);
 			sequence.add(numberOfEntries - value, entry);
 		} else {
-			sequence.add(index + entry.getValue(), entry);
+			sequence.add(index + entryValue, entry);
 		}
 	}
 
 	static void shiftPositiveValue(List<EntryWithId> sequence, int numberOfEntries, int index, EntryWithId entry) {
 		sequence.remove(index);
-		if (index + entry.getValue() >= numberOfEntries - 1) {
-			sequence.add((index + entry.getValue()) % (numberOfEntries - 1), entry);
+		final int value = entry.getValue() % (numberOfEntries - 1);
+		if (index + value >= numberOfEntries - 1) {
+			sequence.add((index + value) % (numberOfEntries - 1), entry);
 		} else {
-			sequence.add(index + entry.getValue(), entry);
+			sequence.add(index + value, entry);
 		}
 	}
 }
