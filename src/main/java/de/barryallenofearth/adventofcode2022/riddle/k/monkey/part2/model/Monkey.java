@@ -10,18 +10,20 @@ import java.util.function.Consumer;
 @Data
 @RequiredArgsConstructor
 public class Monkey {
-    private final int monkeyIndex;
+	private final int monkeyIndex;
 
-    private final Queue<Item> items = new LinkedList<>();
+	private final Queue<Item> items = new LinkedList<>();
 
-    private int itemsInspected = 0;
+	private int itemsInspected = 0;
 
-    private int testDivisor;
+	private int testDivisor;
 
-    private Consumer<Item> operation;
+	private String operationString;
 
-    private int testTrueMonkeyIndex;
+	private Consumer<Item> operation;
 
-    private int testFalseMonkeyIndex;
+	private int testTrueMonkeyIndex;
+
+	private int testFalseMonkeyIndex;
 
 }
