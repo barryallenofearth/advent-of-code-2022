@@ -13,9 +13,7 @@ public class NumberSorter {
 		int numberOfEntries = sequence.size();
 
 		for (int index = 0; index < numberOfEntries; index++) {
-			printSequence(sequence);
 			final EntryWithId entry = getById(sequence, index);
-			//System.out.println(entry);
 
 			if (entry.getValue() >= 0) {
 				shiftPositiveValue(sequence, numberOfEntries, sequence.indexOf(entry), entry);
@@ -24,7 +22,7 @@ public class NumberSorter {
 			}
 		}
 		printSequence(sequence);
-		return sequence.stream().map(EntryWithId::getValue).collect(Collectors.toList());
+		return sequence.stream().map(EntryWithId::getOriginalValue).collect(Collectors.toList());
 	}
 
 	static void printSequence(List<EntryWithId> sequence) {
