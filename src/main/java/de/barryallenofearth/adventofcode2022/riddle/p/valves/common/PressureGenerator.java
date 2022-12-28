@@ -40,9 +40,6 @@ public class PressureGenerator {
 			while (currentValveSequence.getMinute() <= NUMBER_OF_MINUTES) {
 				//opening valve finished => increase flow rate
 				openingValveComplete(currentValveSequence);
-				//if (abortBranch(currentValveSequence, maxPressure)) {
-				//	break;
-				//}
 
 				if (currentValveSequence.getCurrentValve().getFlowRate() > 0 && !currentValveSequence.getCurrentValve().isOpen()) {
 					openValve(currentValveSequence);
@@ -77,24 +74,6 @@ public class PressureGenerator {
 		return maxValveSequence;
 	}
 
-	/*
-		private static boolean abortBranch(ValveSequence valveSequence, int maxPressure) {
-			//assume you could reach all the best remaining valves in 1 minute after the next valve and open it
-			int potentialValvesToOpen = (NUMBER_OF_MINUTES - valveSequence.getMinute()) / 2;
-			int flowRate = valveSequence.getFlowRate();
-			int maxAssumablePressure = valveSequence.getPressure();
-			for (int count = 0; count < Math.min(potentialValvesToOpen, valveSequence.getRemainingValves().size()); count++) {
-				flowRate += valveSequence.getRemainingValves().get(count).getFlowRate();
-				maxAssumablePressure += flowRate;
-			}
-
-			final int idleTime = (NUMBER_OF_MINUTES - valveSequence.getMinute()) - valveSequence.getRemainingValves().size() * 2;
-			for (int count = 0; count < idleTime; count++) {
-				maxAssumablePressure += flowRate;
-			}
-			return maxPressure >= maxAssumablePressure;
-		}
-	*/
 	private static List<Valve> getReachableValvesRemaining(Map<ValveConnection, Integer> valveConnectionIntegerMap, ValveSequence currentValveSequence) {
 		return currentValveSequence.getRemainingValves().stream()
 				.filter(valve -> {
