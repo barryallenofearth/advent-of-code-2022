@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.day21.monkeys.common.util;
+package de.barryallenofearth.adventofcode2022.riddle.day21.monkeys.part1;
 
 import de.barryallenofearth.adventofcode2022.riddle.day21.monkeys.common.model.Monkey;
 import de.barryallenofearth.adventofcode2022.riddle.day21.monkeys.common.model.OperationType;
