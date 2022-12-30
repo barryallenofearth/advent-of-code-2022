@@ -1,8 +1,7 @@
-package de.barryallenofearth.adventofcode2022.riddle.p.valves.common;
+package de.barryallenofearth.adventofcode2022.riddle.p.valves.part1;
 
 import de.barryallenofearth.adventofcode2022.riddle.p.valves.model.Valve;
 import de.barryallenofearth.adventofcode2022.riddle.p.valves.model.ValveConnection;
-import de.barryallenofearth.adventofcode2022.riddle.p.valves.model.ValveSequence;
 
 import java.util.*;
 import java.util.stream.Collectors;

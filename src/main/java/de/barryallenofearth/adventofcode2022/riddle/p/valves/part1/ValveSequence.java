@@ -1,5 +1,6 @@
-package de.barryallenofearth.adventofcode2022.riddle.p.valves.model;
+package de.barryallenofearth.adventofcode2022.riddle.p.valves.part1;
 
+import de.barryallenofearth.adventofcode2022.riddle.p.valves.model.Valve;
 import lombok.Data;
 
 import java.util.ArrayList;
