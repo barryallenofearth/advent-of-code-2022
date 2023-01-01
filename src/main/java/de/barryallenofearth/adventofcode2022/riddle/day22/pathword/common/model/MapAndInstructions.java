@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @RequiredArgsConstructor
 public class MapAndInstructions {
-	private final List<Coordinates> freeCoordinates = new ArrayList<>();
+	private final List<Coordinates> boardCoordinates = new ArrayList<>();
 
 	private final List<Coordinates> blockedCoordinates = new ArrayList<>();
 

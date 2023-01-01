@@ -1,9 +1,6 @@
 package de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.util;
 
-import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.Instruction;
-import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.InstructionType;
-import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.MapAndInstructions;
-import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.Rotation;
+import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.*;
 import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
 import java.util.List;
@@ -27,6 +24,20 @@ public class MapAndInstructionReader {
 	}
 
 	private void readCoordinates(MapAndInstructions mapAndInstructions, List<String> strings) {
+		int y = 1;
+		for (String string : strings) {
+			for (int x = 1; x <= string.length(); x++) {
+				if (string.charAt(x - 1) == ' ') {
+					continue;
+				} else if (string.charAt(x - 1) == '.') {
+					mapAndInstructions.getBoardCoordinates().add(new Coordinates(x, y));
+				} else if (string.charAt(x - 1) == '#') {
+					mapAndInstructions.getBoardCoordinates().add(new Coordinates(x, y));
+					mapAndInstructions.getBlockedCoordinates().add(new Coordinates(x, y));
+				}
+			}
+			y++;
+		}
 
 	}
 
