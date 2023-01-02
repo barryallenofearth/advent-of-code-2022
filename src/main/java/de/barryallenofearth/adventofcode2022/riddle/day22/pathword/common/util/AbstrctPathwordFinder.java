@@ -5,7 +5,7 @@ import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.
 import java.util.HashMap;
 import java.util.Map;
 
-public class PathwordFinder {
+public abstract class AbstrctPathwordFinder {
 
 	public MyPosition findFinalPosition(MapAndInstructions mapAndInstructions) {
 		MyPosition myPosition = new MyPosition();
@@ -78,20 +78,7 @@ public class PathwordFinder {
 		}
 	}
 
-	private boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {
-		myPosition.getDirection().getReverse().accept(myPosition.getCoordinates());
-		Coordinates startingCoordinates = new Coordinates(myPosition.getCoordinates().getX(), myPosition.getCoordinates().getY());
-		do {
-			myPosition.getDirection().getReverse().accept(myPosition.getCoordinates());
-		} while (mapAndInstructions.getBoardCoordinates().contains(myPosition.getCoordinates()));
-		myPosition.getDirection().getMove().accept(myPosition.getCoordinates());
-		if (mapAndInstructions.getBlockedCoordinates().contains(myPosition.getCoordinates())) {
-			myPosition.setCoordinates(startingCoordinates);
-
-			return true;
-		}
-		return false;
-	}
+	protected abstract boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition);
 
 	private void putMyPosition(MyPosition myPosition, Map<Coordinates, String> map) {
 		map.put(new Coordinates(myPosition.getCoordinates().getX(), myPosition.getCoordinates().getY()), myPosition.getDirection().getSymbol());
