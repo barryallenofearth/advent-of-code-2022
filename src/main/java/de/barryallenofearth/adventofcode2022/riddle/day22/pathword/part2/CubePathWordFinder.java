@@ -26,6 +26,8 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private final Map<Integer, List<FoldedCoordinates>> facingElements = new HashMap<>();
 
+	private final Map<FacingAndDirection, FacingAndDirection> whereToNext = new HashMap<>();
+
 	public void determineFacings(List<Coordinates> boardElements) {
 		int maxX = 0;
 		int maxY = 0;
@@ -42,8 +44,34 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		final int cubeLength = maxX > 50 ? 50 : 4;
 
 		determineCubeFacings(boardElements, maxX, maxY, cubeLength);
-		foldCube(boardElements);
+		final List<CubeBorder> cubeBorderList = foldCubeAndReturnBorders(boardElements);
+
+		findAdjacentFields(cubeBorderList);
 		printOriginalFacings(maxX, maxY);
+	}
+
+	private void findAdjacentFields(List<CubeBorder> cubeBorderList) {
+		Map<CubeBorder, CubeBorder> closestNeighbors = new HashMap<>();
+		int middleIndex = cubeBorderList.get(0).getCornerCoordinates().size() / 2;
+		for (CubeBorder cubeBorder : cubeBorderList) {
+			float minDistance = Float.MAX_VALUE;
+			for (CubeBorder comparisonBorder : cubeBorderList) {
+				if (comparisonBorder.equals(cubeBorder)) {
+					continue;
+				}
+				final Coordinates3D current = cubeBorder.getCornerCoordinates().get(middleIndex).getFoldedCoordinates();
+				final Coordinates3D comparison = comparisonBorder.getCornerCoordinates().get(middleIndex).getFoldedCoordinates();
+				float distance = Math.abs(current.getX() - comparison.getX()) + Math.abs(current.getY() - comparison.getY()) + Math.abs(current.getZ() - comparison.getZ());
+				if (distance < minDistance) {
+					closestNeighbors.put(cubeBorder, comparisonBorder);
+					minDistance = distance;
+				}
+			}
+		}
+
+		for (Map.Entry<CubeBorder, CubeBorder> cubeBorderCubeBorderEntry : closestNeighbors.entrySet()) {
+
+		}
 	}
 
 	private void printOriginalFacings(int maxX, int maxY) {
@@ -84,8 +112,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		}
 	}
 
-	private List<FoldedCoordinates> foldCube(List<Coordinates> boardElements) {
-		final List<FoldedCoordinates> foldedCoordinateList = new ArrayList<>();
+	private List<CubeBorder> foldCubeAndReturnBorders(List<Coordinates> boardElements) {
 
 		final List<CubeBorder> borders = findBorders();
 		final List<FoldingLine> foldingLines = findFoldingLines(borders, boardElements);
@@ -106,14 +133,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 				removeUsedFoldingLines(foldingLines, foldingLine);
 			}
 		}
-		/*
-			1) TODO find borders
-			2) fold around border axis with the actual axis in the example being at height 0.5 at the beginning
-			 not sure about the part
-			3) consider axis shift: result = matrix * (original - offset) + offset
-			offset means: matrix requires rotation around the x-Axis, shift border to be equal to x-Axis, then rotate,then shift back.
-		 */
-		return foldedCoordinateList;
+		return borders;
 	}
 
 	private void removeUsedFoldingLines(List<FoldingLine> foldingLines, FoldingLine foldingLine) {
@@ -283,6 +303,24 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 	}
 
 	@Override protected boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {
-		return false;
+		Optional<Integer> facingID = facingElements.entrySet().stream()
+				.filter(entry -> entry.getValue().stream()
+						.anyMatch(foldedCoordinates -> foldedCoordinates.getOriginalCoordinates().equals(myPosition.getCoordinates())))
+				.map(Map.Entry::getKey)
+				.findFirst();
+
+		if (facingID.isEmpty()) {
+			myPosition.getDirection().getReverse().accept(myPosition.getCoordinates());
+			return true;
+		}
+
+		final FacingAndDirection next = whereToNext.get(new FacingAndDirection(facingID.get(), myPosition.getDirection(), myPosition.getCoordinates()));
+		if (next != null) {
+			myPosition.getCoordinates().setX(next.getCoordinates().getX());
+			myPosition.getCoordinates().setY(next.getCoordinates().getY());
+			myPosition.setDirection(next.getDirection());
+			return false;
+		}
+		return true;
 	}
 }
