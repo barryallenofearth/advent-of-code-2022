@@ -22,10 +22,6 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private static final int[][] Y_AXIS_CLOCKWISE = { { 0, 0, -1 }, { 0, 1, 0 }, { 1, 0, 0 } };
 
-	private static final int[][] Z_AXIS_COUNTER_CLOCKWISE = { { 0, -1, 0 }, { 1, 0, 0 }, { 0, 0, 1 } };
-
-	private static final int[][] Z_AXIS_CLOCKWISE = { { 0, 1, 0 }, { -1, 0, 0 }, { 0, 0, 1 } };
-
 	private final Map<Integer, List<Coordinates>> facingElements = new HashMap<>();
 
 	public void determineFacings(List<Coordinates> boardElements) {
@@ -85,6 +81,27 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 		final List<CubeBorder> borders = findBorders();
 		final List<FoldingCubeCorner> foldingLines = findFoldingLines(borders, boardElements);
+
+		final Map<Integer, List<FoldingCubeCorner>> facingIDWithBorders = foldingLines.stream().collect(Collectors.groupingBy(foldingCubeCorner -> foldingCubeCorner.getCubeBorder1().getFacingValue()));
+		final List<FoldingCubeCorner> firstFacingFoldingLines = facingIDWithBorders.get(1);
+		for (FoldingCubeCorner firstFacingFoldingLine : firstFacingFoldingLines) {
+			final FoldedCoordinates startingCoordinates1 = firstFacingFoldingLine.getCubeBorder1().getCornerCoordinates().get(0);
+			final FoldedCoordinates startingCoordinates2 = firstFacingFoldingLine.getCubeBorder2().getCornerCoordinates().get(0);
+			final FoldedCoordinates stopCoordinates1 = firstFacingFoldingLine.getCubeBorder1().getCornerCoordinates().get(firstFacingFoldingLine.getCubeBorder1().getCornerCoordinates().size() - 1);
+			final FoldedCoordinates stopCoordinates2 = firstFacingFoldingLine.getCubeBorder2().getCornerCoordinates().get(firstFacingFoldingLine.getCubeBorder2().getCornerCoordinates().size() - 1);
+
+			final FoldedCoordinates startingMiddle = new FoldedCoordinates((startingCoordinates2.getX() - startingCoordinates1.getX()) / 2 + startingCoordinates1.getX(),
+					(startingCoordinates2.getY() - startingCoordinates1.getY()) / 2 + startingCoordinates1.getY(),
+					(startingCoordinates2.getZ() - startingCoordinates1.getZ()) / 2 + startingCoordinates1.getZ(), null);
+			final FoldedCoordinates stopMiddle = new FoldedCoordinates((stopCoordinates2.getX() - stopCoordinates1.getX()) / 2 + stopCoordinates1.getX(),
+					(stopCoordinates2.getY() - stopCoordinates1.getY()) / 2 + stopCoordinates1.getY(),
+					(stopCoordinates2.getZ() - stopCoordinates1.getZ()) / 2 + stopCoordinates1.getZ(), null);
+
+			float[] rotationAxis = { Math.abs(stopMiddle.getX() - startingMiddle.getX()), Math.abs(stopMiddle.getY() - startingMiddle.getY()), Math.abs(stopMiddle.getZ() - startingMiddle.getZ()) };
+			System.out.println(firstFacingFoldingLine);
+			System.out.println("(" + rotationAxis[0] + "," + rotationAxis[1] + "," + rotationAxis[2] + ")");
+			System.out.println();
+		}
 		/*
 			1) TODO find borders
 			2) fold around border axis with the actual axis in the example being at height 0.5 at the beginning
@@ -156,7 +173,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private Coordinates stepOutsideFacing(CubeBorder border) {
 		final FoldedCoordinates startingCoordinates = border.getCornerCoordinates().get(1);
-		final Coordinates coordinates = new Coordinates(startingCoordinates.getX(), startingCoordinates.getY());
+		final Coordinates coordinates = new Coordinates(((int) startingCoordinates.getX()), (int) startingCoordinates.getY());
 		border.getDirectionToLeave().getMove().accept(coordinates);
 		return coordinates;
 	}
