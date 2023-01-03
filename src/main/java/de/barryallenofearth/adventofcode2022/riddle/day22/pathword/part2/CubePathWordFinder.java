@@ -1,14 +1,18 @@
 package de.barryallenofearth.adventofcode2022.riddle.day22.pathword.part2;
 
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.Coordinates;
+import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.Direction;
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.MapAndInstructions;
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.MyPosition;
-import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.util.AbstrctPathwordFinder;
+import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.util.AbstractPathwordFinder;
+import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.part2.model.CubeBorder;
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.part2.model.FoldedCoordinates;
+import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.part2.model.FoldingCubeCorner;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class CubePathWordFinder extends AbstrctPathwordFinder {
+public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private static final int[][] X_AXIS_COUNTER_CLOCKWISE = { { 1, 0, 0 }, { 0, 0, -1 }, { 0, 1, 0 } };
 
@@ -40,7 +44,7 @@ public class CubePathWordFinder extends AbstrctPathwordFinder {
 		final int cubeLength = maxX > 50 ? 50 : 4;
 
 		determineCubeFacings(boardElements, maxX, maxY, cubeLength);
-
+		foldCube(cubeLength, boardElements);
 		for (int y = 1; y <= maxY; y++) {
 			for (int x = 1; x <= maxX; x++) {
 				final Coordinates coordinates = new Coordinates(x, y);
@@ -76,9 +80,11 @@ public class CubePathWordFinder extends AbstrctPathwordFinder {
 		}
 	}
 
-	private List<FoldedCoordinates> foldCube(int cubeLength) {
+	private List<FoldedCoordinates> foldCube(int cubeLength, List<Coordinates> boardElements) {
 		final List<FoldedCoordinates> foldedCoordinateList = new ArrayList<>();
 
+		final List<CubeBorder> borders = findBorders();
+		final List<FoldingCubeCorner> foldingLines = findFoldingLines(borders, boardElements);
 		/*
 			1) TODO find borders
 			2) fold around border axis with the actual axis in the example being at height 0.5 at the beginning
@@ -86,16 +92,73 @@ public class CubePathWordFinder extends AbstrctPathwordFinder {
 			3) consider axis shift: result = matrix * (original - offset) + offset
 			offset means: matrix requires rotation around the x-Axis, shift border to be equal to x-Axis, then rotate,then shift back.
 		 */
-		for (Map.Entry<Integer, List<Coordinates>> facing : facingElements.entrySet()) {
-			switch (facing.getKey()) {
-			case 1:
-				for (List<Coordinates> coordinates : facingElements.values()) {
-
-				}
-				break;
-			}
-		}
 		return foldedCoordinateList;
+	}
+
+	private List<CubeBorder> findBorders() {
+		final List<CubeBorder> cubeBorderList = new ArrayList<>();
+		for (Map.Entry<Integer, List<Coordinates>> facing : facingElements.entrySet()) {
+			final int minX, minY, maxX, maxY;
+			final List<Coordinates> facingElements = facing.getValue();
+			final Coordinates firstField = facingElements.get(0);
+			minX = firstField.getX();
+			minY = firstField.getY();
+			final Coordinates lastField = facingElements.get(facingElements.size() - 1);
+			maxX = lastField.getX();
+			maxY = lastField.getY();
+			final List<FoldedCoordinates> leftFacing = facingElements.stream()
+					.filter(coordinates -> coordinates.getX() == minX)
+					.map(coordinates -> new FoldedCoordinates(coordinates.getX(), coordinates.getY(), 1, coordinates))
+					.collect(Collectors.toList());
+			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.LEFT, leftFacing));
+			final List<FoldedCoordinates> rightFacing = facingElements.stream()
+					.filter(coordinates -> coordinates.getX() == maxX)
+					.map(coordinates -> new FoldedCoordinates(coordinates.getX(), coordinates.getY(), 1, coordinates))
+					.collect(Collectors.toList());
+			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.RIGHT, rightFacing));
+			final List<FoldedCoordinates> upFacing = facingElements.stream()
+					.filter(coordinates -> coordinates.getY() == minY)
+					.map(coordinates -> new FoldedCoordinates(coordinates.getX(), coordinates.getY(), 1, coordinates))
+					.collect(Collectors.toList());
+			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.UP, upFacing));
+			final List<FoldedCoordinates> downFacing = facingElements.stream()
+					.filter(coordinates -> coordinates.getY() == maxY)
+					.map(coordinates -> new FoldedCoordinates(coordinates.getX(), coordinates.getY(), 1, coordinates))
+					.collect(Collectors.toList());
+			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.DOWN, downFacing));
+
+			System.out.println("min (" + minX + "," + minY + ") and max (" + maxX + "," + maxY + ")");
+		}
+
+		return cubeBorderList;
+	}
+
+	private List<FoldingCubeCorner> findFoldingLines(List<CubeBorder> borders, List<Coordinates> boardElements) {
+
+		final List<FoldingCubeCorner> foldingCubeCorners = borders.stream().filter(border -> {
+			// 1 leads to a unique new position, get(0) leads to a corner, which is part of multiple borders
+			final Coordinates coordinates = stepOutsideFacing(border);
+			//if step to leave is still on board => corner that requires folding
+			return boardElements.contains(coordinates);
+		}).map(border -> {
+			final CubeBorder partnerBorder = borders.stream().filter(otherBorder -> {
+				final Coordinates coordinates = stepOutsideFacing(border);
+				return otherBorder.getCornerCoordinates().contains(new FoldedCoordinates(coordinates.getX(), coordinates.getY(), 1, coordinates));
+			}).findFirst().get();
+			return new FoldingCubeCorner(border, partnerBorder);
+		}).collect(Collectors.toList());
+
+		foldingCubeCorners.forEach(foldingCubeCorner -> System.out
+				.println(foldingCubeCorner.getCubeBorder1().getFacingValue() + " " + foldingCubeCorner.getCubeBorder1().getDirectionToLeave() + "->" + foldingCubeCorner.getCubeBorder2().getFacingValue() + " " + foldingCubeCorner.getCubeBorder2()
+						.getDirectionToLeave()));
+		return foldingCubeCorners;
+	}
+
+	private Coordinates stepOutsideFacing(CubeBorder border) {
+		final FoldedCoordinates startingCoordinates = border.getCornerCoordinates().get(1);
+		final Coordinates coordinates = new Coordinates(startingCoordinates.getX(), startingCoordinates.getY());
+		border.getDirectionToLeave().getMove().accept(coordinates);
+		return coordinates;
 	}
 
 	@Override protected boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {

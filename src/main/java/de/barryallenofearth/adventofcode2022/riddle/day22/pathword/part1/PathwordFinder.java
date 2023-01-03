@@ -3,9 +3,9 @@ package de.barryallenofearth.adventofcode2022.riddle.day22.pathword.part1;
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.Coordinates;
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.MapAndInstructions;
 import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.MyPosition;
-import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.util.AbstrctPathwordFinder;
+import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.util.AbstractPathwordFinder;
 
-public class PathwordFinder extends AbstrctPathwordFinder {
+public class PathwordFinder extends AbstractPathwordFinder {
 
 	@Override
 	protected boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {

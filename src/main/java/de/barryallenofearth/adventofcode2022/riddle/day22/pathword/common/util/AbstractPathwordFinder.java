@@ -5,7 +5,7 @@ import de.barryallenofearth.adventofcode2022.riddle.day22.pathword.common.model.
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstrctPathwordFinder {
+public abstract class AbstractPathwordFinder {
 
 	public MyPosition findFinalPosition(MapAndInstructions mapAndInstructions) {
 		MyPosition myPosition = new MyPosition();
