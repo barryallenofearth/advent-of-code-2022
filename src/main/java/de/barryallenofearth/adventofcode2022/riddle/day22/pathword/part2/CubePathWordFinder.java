@@ -20,6 +20,10 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private static final int[][] Y_AXIS_CLOCKWISE = { { 0, 0, -1 }, { 0, 1, 0 }, { 1, 0, 0 } };
 
+	private static final int[][] Z_AXIS_COUNTER_CLOCKWISE = { { 0, 1, 0 }, { -1, 0, 0 }, { 0, 0, 1 } };
+
+	private static final int[][] Z_AXIS_CLOCKWISE = { { 0, -1, 0 }, { 1, 0, 0 }, { 0, 0, 1 } };
+
 	private final Map<Integer, List<FoldedCoordinates>> facingElements = new HashMap<>();
 
 	public void determineFacings(List<Coordinates> boardElements) {
@@ -38,7 +42,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		final int cubeLength = maxX > 50 ? 50 : 4;
 
 		determineCubeFacings(boardElements, maxX, maxY, cubeLength);
-		foldCube(cubeLength, boardElements);
+		foldCube(boardElements);
 		printOriginalFacings(maxX, maxY);
 	}
 
@@ -80,7 +84,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		}
 	}
 
-	private List<FoldedCoordinates> foldCube(int cubeLength, List<Coordinates> boardElements) {
+	private List<FoldedCoordinates> foldCube(List<Coordinates> boardElements) {
 		final List<FoldedCoordinates> foldedCoordinateList = new ArrayList<>();
 
 		final List<CubeBorder> borders = findBorders();
@@ -115,10 +119,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 	private void removeUsedFoldingLines(List<FoldingLine> foldingLines, FoldingLine foldingLine) {
 		//remove already rotated lines and their opposites
 		foldingLines.remove(foldingLine);
-		final Optional<FoldingLine> oppositeLine = foldingLines.stream()
-				.filter(matchFoldingLine -> matchFoldingLine.getCubeBorder2().equals(foldingLine.getCubeBorder1()) && matchFoldingLine.getCubeBorder1().equals(foldingLine.getCubeBorder2()))
-				.findFirst();
-		oppositeLine.ifPresent(foldingLines::remove);
+		removeOppsosite(foldingLines, foldingLine);
 	}
 
 	private List<CubeBorder> findBorders() {
@@ -221,6 +222,15 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 				System.out.println();
 			}
 			shiftToAxisVector = new Coordinates3D(-startingMiddle.getX(), 0, -startingMiddle.getZ());
+		} else if (rotationAxis[2] > 0) {
+			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.LEFT) {
+				rotationMatrix = Z_AXIS_CLOCKWISE;
+			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT) {
+				rotationMatrix = Z_AXIS_COUNTER_CLOCKWISE;
+			} else {
+				System.out.println();
+			}
+			shiftToAxisVector = new Coordinates3D(-startingMiddle.getX(), -startingMiddle.getY(), 0);
 		}
 		if (shiftToAxisVector == null) {
 			throw new IllegalStateException("A shift to axis vector needs to be defined");
@@ -250,7 +260,26 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 	}
 
 	private List<FoldedCoordinates> getConnectedFacings(FoldingLine foldingLine, List<FoldingLine> allRemainingFoldingLines) {
-		return this.facingElements.get(foldingLine.getCubeBorder2().getFacingID());
+		removeOppsosite(allRemainingFoldingLines, foldingLine);
+
+		List<FoldedCoordinates> allCoordinates = new ArrayList<>(facingElements.get(foldingLine.getCubeBorder2().getFacingID()));
+
+		final List<FoldingLine> foldingLinesConnectedToCurrentFacing = allRemainingFoldingLines.stream()
+				.filter(line -> line.getCubeBorder1().getFacingID() == foldingLine.getCubeBorder2().getFacingID())
+				.collect(Collectors.toList());
+
+		for (FoldingLine line : foldingLinesConnectedToCurrentFacing) {
+			allCoordinates.addAll(getConnectedFacings(line, allRemainingFoldingLines));
+		}
+
+		return allCoordinates;
+	}
+
+	private void removeOppsosite(List<FoldingLine> allRemainingFoldingLines, FoldingLine nextLine) {
+		final Optional<FoldingLine> oppositeLine = allRemainingFoldingLines.stream()
+				.filter(matchFoldingLine -> matchFoldingLine.getCubeBorder2().equals(nextLine.getCubeBorder1()) && matchFoldingLine.getCubeBorder1().equals(nextLine.getCubeBorder2()))
+				.findFirst();
+		oppositeLine.ifPresent(allRemainingFoldingLines::remove);
 	}
 
 	@Override protected boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {
