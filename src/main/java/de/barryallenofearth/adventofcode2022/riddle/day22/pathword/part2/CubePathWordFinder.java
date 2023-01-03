@@ -56,7 +56,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		for (CubeBorder cubeBorder : cubeBorderList) {
 			float minDistance = Float.MAX_VALUE;
 			for (CubeBorder comparisonBorder : cubeBorderList) {
-				if (comparisonBorder.equals(cubeBorder)) {
+				if (comparisonBorder.getFacingID() == cubeBorder.getFacingID()) {
 					continue;
 				}
 				final Coordinates3D current = cubeBorder.getCornerCoordinates().get(middleIndex).getFoldedCoordinates();
@@ -67,6 +67,11 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 					minDistance = distance;
 				}
 			}
+			if (cubeBorder.getFacingID() == closestNeighbors.get(cubeBorder).getFacingID()) {
+				throw new IllegalStateException("No face may be closest to itself: " + cubeBorder.getFacingID() + " " + cubeBorder.getDirectionToLeave() + " <-> " + closestNeighbors.get(cubeBorder).getFacingID() + " " + closestNeighbors
+						.get(cubeBorder).getDirectionToLeave() + " " + minDistance);
+			}
+			System.out.println(cubeBorder.getFacingID() + " " + cubeBorder.getDirectionToLeave() + " " + minDistance + " " + closestNeighbors.get(cubeBorder).getFacingID() + " " + closestNeighbors.get(cubeBorder).getDirectionToLeave());
 		}
 
 		for (Map.Entry<CubeBorder, CubeBorder> cubeBorderCubeBorderEntry : closestNeighbors.entrySet()) {
@@ -118,22 +123,26 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		final List<FoldingLine> foldingLines = findFoldingLines(borders, boardElements);
 
 		final Map<Integer, List<FoldingLine>> facingIDWithFoldingLines = foldingLines.stream().collect(Collectors.groupingBy(foldingLine -> foldingLine.getCubeBorder1().getFacingID()));
-		for (int facingId = 1; facingId <= 6; facingId++) {
-			final List<FoldingLine> startingSide = facingIDWithFoldingLines.get(facingId);
-			for (FoldingLine foldingLine : startingSide) {
-				//tracking of all folding lines happens in the complete list for simplicity
-				if (!foldingLines.contains(foldingLine)) {
-					continue;
-				}
-
-				//rotate
-				final RotationProperties rotationProperties = getRotationProperties(foldingLine);
-				rotateCoordinates(getConnectedFacings(foldingLine, foldingLines), rotationProperties);
-
-				removeUsedFoldingLines(foldingLines, foldingLine);
-			}
-		}
+		foldAllLinesAndSublinesOfFacing(foldingLines, facingIDWithFoldingLines, 1);
 		return borders;
+	}
+
+	private void foldAllLinesAndSublinesOfFacing(List<FoldingLine> foldingLines, Map<Integer, List<FoldingLine>> facingIDWithFoldingLines, int facingId) {
+		final List<FoldingLine> startingSide = facingIDWithFoldingLines.get(facingId);
+		for (FoldingLine foldingLine : startingSide) {
+			//tracking of all folding lines happens in the complete list for simplicity
+			if (!foldingLines.contains(foldingLine)) {
+				continue;
+			}
+
+			//rotate
+			final RotationProperties rotationProperties = getRotationProperties(foldingLine);
+			rotateCoordinates(getConnectedFacings(foldingLine, foldingLines), rotationProperties);
+
+			removeUsedFoldingLines(foldingLines, foldingLine);
+
+			foldAllLinesAndSublinesOfFacing(foldingLines, facingIDWithFoldingLines, foldingLine.getCubeBorder2().getFacingID());
+		}
 	}
 
 	private void removeUsedFoldingLines(List<FoldingLine> foldingLines, FoldingLine foldingLine) {
