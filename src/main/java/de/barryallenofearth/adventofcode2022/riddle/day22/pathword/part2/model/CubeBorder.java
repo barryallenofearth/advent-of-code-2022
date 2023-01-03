@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class CubeBorder {
-	private final int facingValue;
+	private final int facingID;
 
 	private final Direction directionToLeave;
 

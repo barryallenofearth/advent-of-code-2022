@@ -20,7 +20,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private static final int[][] Y_AXIS_CLOCKWISE = { { 0, 0, -1 }, { 0, 1, 0 }, { 1, 0, 0 } };
 
-	private final Map<Integer, List<Coordinates>> facingElements = new HashMap<>();
+	private final Map<Integer, List<FoldedCoordinates>> facingElements = new HashMap<>();
 
 	public void determineFacings(List<Coordinates> boardElements) {
 		int maxX = 0;
@@ -39,15 +39,20 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 		determineCubeFacings(boardElements, maxX, maxY, cubeLength);
 		foldCube(cubeLength, boardElements);
+		printOriginalFacings(maxX, maxY);
+	}
+
+	private void printOriginalFacings(int maxX, int maxY) {
 		for (int y = 1; y <= maxY; y++) {
 			for (int x = 1; x <= maxX; x++) {
 				final Coordinates coordinates = new Coordinates(x, y);
-				final Optional<Map.Entry<Integer, List<Coordinates>>> foundEntry = facingElements.entrySet().stream().filter(entry -> entry.getValue().contains(coordinates)).findFirst();
+				final Optional<Map.Entry<Integer, List<FoldedCoordinates>>> foundEntry = facingElements.entrySet().stream()
+						.filter(entry -> entry.getValue().stream().anyMatch(foldedCoordinates -> foldedCoordinates.getOriginalCoordinates().equals(coordinates))).findFirst();
 				if (foundEntry.isEmpty()) {
 					System.out.print(" ");
 				} else {
-					final Map.Entry<Integer, List<Coordinates>> collect = foundEntry.get();
-					System.out.print(collect.getKey());
+					final Map.Entry<Integer, List<FoldedCoordinates>> entry = foundEntry.get();
+					System.out.print(entry.getKey());
 				}
 			}
 			System.out.println();
@@ -62,11 +67,12 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 				final Coordinates coordinates = new Coordinates(xCube, yCube);
 				if (boardElements.contains(coordinates)) {
 					currentFacing++;
-					final List<Coordinates> currentList = new ArrayList<>();
+					final List<FoldedCoordinates> currentList = new ArrayList<>();
 					facingElements.put(currentFacing, currentList);
 					for (int y = yCube; y < yCube + cubeLength; y++) {
 						for (int x = xCube; x < xCube + cubeLength; x++) {
-							currentList.add(new Coordinates(x, y));
+							final Coordinates coordinates1 = new Coordinates(x, y);
+							currentList.add(getFoldedCoordinates(coordinates1));
 						}
 					}
 				}
@@ -78,12 +84,23 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		final List<FoldedCoordinates> foldedCoordinateList = new ArrayList<>();
 
 		final List<CubeBorder> borders = findBorders();
-		final List<FoldingCubeCorner> foldingLines = findFoldingLines(borders, boardElements);
+		final List<FoldingLine> foldingLines = findFoldingLines(borders, boardElements);
 
-		final Map<Integer, List<FoldingCubeCorner>> facingIDWithBorders = foldingLines.stream().collect(Collectors.groupingBy(foldingCubeCorner -> foldingCubeCorner.getCubeBorder1().getFacingValue()));
-		final List<FoldingCubeCorner> firstFacingFoldingLines = facingIDWithBorders.get(1);
-		for (FoldingCubeCorner firstFacingFoldingLine : firstFacingFoldingLines) {
-			final RotationProperties rotationProperties = getRotationProperties(firstFacingFoldingLine);
+		final Map<Integer, List<FoldingLine>> facingIDWithFoldingLines = foldingLines.stream().collect(Collectors.groupingBy(foldingLine -> foldingLine.getCubeBorder1().getFacingID()));
+		for (int facingId = 1; facingId <= 6; facingId++) {
+			final List<FoldingLine> startingSide = facingIDWithFoldingLines.get(facingId);
+			for (FoldingLine foldingLine : startingSide) {
+				//tracking of all folding lines happens in the complete list for simplicity
+				if (!foldingLines.contains(foldingLine)) {
+					continue;
+				}
+
+				//rotate
+				final RotationProperties rotationProperties = getRotationProperties(foldingLine);
+				rotateCoordinates(getConnectedFacings(foldingLine, foldingLines), rotationProperties);
+
+				removeUsedFoldingLines(foldingLines, foldingLine);
+			}
 		}
 		/*
 			1) TODO find borders
@@ -95,35 +112,40 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		return foldedCoordinateList;
 	}
 
+	private void removeUsedFoldingLines(List<FoldingLine> foldingLines, FoldingLine foldingLine) {
+		//remove already rotated lines and their opposites
+		foldingLines.remove(foldingLine);
+		final Optional<FoldingLine> oppositeLine = foldingLines.stream()
+				.filter(matchFoldingLine -> matchFoldingLine.getCubeBorder2().equals(foldingLine.getCubeBorder1()) && matchFoldingLine.getCubeBorder1().equals(foldingLine.getCubeBorder2()))
+				.findFirst();
+		oppositeLine.ifPresent(foldingLines::remove);
+	}
+
 	private List<CubeBorder> findBorders() {
 		final List<CubeBorder> cubeBorderList = new ArrayList<>();
-		for (Map.Entry<Integer, List<Coordinates>> facing : facingElements.entrySet()) {
+		for (Map.Entry<Integer, List<FoldedCoordinates>> facing : facingElements.entrySet()) {
 			final int minX, minY, maxX, maxY;
-			final List<Coordinates> facingElements = facing.getValue();
-			final Coordinates firstField = facingElements.get(0);
-			minX = firstField.getX();
-			minY = firstField.getY();
-			final Coordinates lastField = facingElements.get(facingElements.size() - 1);
-			maxX = lastField.getX();
-			maxY = lastField.getY();
+			final List<FoldedCoordinates> facingElements = facing.getValue();
+			final FoldedCoordinates firstField = facingElements.get(0);
+			minX = firstField.getOriginalCoordinates().getX();
+			minY = firstField.getOriginalCoordinates().getY();
+			final FoldedCoordinates lastField = facingElements.get(facingElements.size() - 1);
+			maxX = lastField.getOriginalCoordinates().getX();
+			maxY = lastField.getOriginalCoordinates().getY();
 			final List<FoldedCoordinates> leftFacing = facingElements.stream()
-					.filter(coordinates -> coordinates.getX() == minX)
-					.map(this::getFoldedCoordinates)
+					.filter(coordinates -> coordinates.getOriginalCoordinates().getX() == minX)
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.LEFT, leftFacing));
 			final List<FoldedCoordinates> rightFacing = facingElements.stream()
-					.filter(coordinates -> coordinates.getX() == maxX)
-					.map(this::getFoldedCoordinates)
+					.filter(coordinates -> coordinates.getOriginalCoordinates().getX() == maxX)
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.RIGHT, rightFacing));
 			final List<FoldedCoordinates> upFacing = facingElements.stream()
-					.filter(coordinates -> coordinates.getY() == minY)
-					.map(this::getFoldedCoordinates)
+					.filter(coordinates -> coordinates.getOriginalCoordinates().getY() == minY)
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.UP, upFacing));
 			final List<FoldedCoordinates> downFacing = facingElements.stream()
-					.filter(coordinates -> coordinates.getY() == maxY)
-					.map(this::getFoldedCoordinates)
+					.filter(coordinates -> coordinates.getOriginalCoordinates().getY() == maxY)
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.DOWN, downFacing));
 
@@ -137,9 +159,9 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		return new FoldedCoordinates(new Coordinates3D(coordinates.getX(), coordinates.getY(), 1), coordinates);
 	}
 
-	private List<FoldingCubeCorner> findFoldingLines(List<CubeBorder> borders, List<Coordinates> boardElements) {
+	private List<FoldingLine> findFoldingLines(List<CubeBorder> borders, List<Coordinates> boardElements) {
 
-		final List<FoldingCubeCorner> foldingCubeCorners = borders.stream().filter(border -> {
+		final List<FoldingLine> foldingLines = borders.stream().filter(border -> {
 			// 1 leads to a unique new position, get(0) leads to a corner, which is part of multiple borders
 			final Coordinates coordinates = stepOutsideFacing(border);
 			//if step to leave is still on board => corner that requires folding
@@ -149,13 +171,13 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 				final Coordinates coordinates = stepOutsideFacing(border);
 				return otherBorder.getCornerCoordinates().contains(getFoldedCoordinates(coordinates));
 			}).findFirst().get();
-			return new FoldingCubeCorner(border, partnerBorder);
+			return new FoldingLine(border, partnerBorder);
 		}).collect(Collectors.toList());
 
-		foldingCubeCorners.forEach(foldingCubeCorner -> System.out
-				.println(foldingCubeCorner.getCubeBorder1().getFacingValue() + " " + foldingCubeCorner.getCubeBorder1().getDirectionToLeave() + "->" + foldingCubeCorner.getCubeBorder2().getFacingValue() + " " + foldingCubeCorner.getCubeBorder2()
+		foldingLines.forEach(foldingLine -> System.out
+				.println(foldingLine.getCubeBorder1().getFacingID() + " " + foldingLine.getCubeBorder1().getDirectionToLeave() + "->" + foldingLine.getCubeBorder2().getFacingID() + " " + foldingLine.getCubeBorder2()
 						.getDirectionToLeave()));
-		return foldingCubeCorners;
+		return foldingLines;
 	}
 
 	private Coordinates stepOutsideFacing(CubeBorder border) {
@@ -165,11 +187,11 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		return coordinates;
 	}
 
-	private RotationProperties getRotationProperties(FoldingCubeCorner foldingCubeCorner) {
-		final FoldedCoordinates startingCoordinates1 = foldingCubeCorner.getCubeBorder1().getCornerCoordinates().get(0);
-		final FoldedCoordinates startingCoordinates2 = foldingCubeCorner.getCubeBorder2().getCornerCoordinates().get(0);
-		final FoldedCoordinates stopCoordinates1 = foldingCubeCorner.getCubeBorder1().getCornerCoordinates().get(foldingCubeCorner.getCubeBorder1().getCornerCoordinates().size() - 1);
-		final FoldedCoordinates stopCoordinates2 = foldingCubeCorner.getCubeBorder2().getCornerCoordinates().get(foldingCubeCorner.getCubeBorder2().getCornerCoordinates().size() - 1);
+	private RotationProperties getRotationProperties(FoldingLine foldingLine) {
+		final FoldedCoordinates startingCoordinates1 = foldingLine.getCubeBorder1().getCornerCoordinates().get(0);
+		final FoldedCoordinates startingCoordinates2 = foldingLine.getCubeBorder2().getCornerCoordinates().get(0);
+		final FoldedCoordinates stopCoordinates1 = foldingLine.getCubeBorder1().getCornerCoordinates().get(foldingLine.getCubeBorder1().getCornerCoordinates().size() - 1);
+		final FoldedCoordinates stopCoordinates2 = foldingLine.getCubeBorder2().getCornerCoordinates().get(foldingLine.getCubeBorder2().getCornerCoordinates().size() - 1);
 
 		final Coordinates3D startingMiddle = new Coordinates3D((startingCoordinates2.getFoldedCoordinates().getX() - startingCoordinates1.getFoldedCoordinates().getX()) / 2 + startingCoordinates1.getFoldedCoordinates().getX(),
 				(startingCoordinates2.getFoldedCoordinates().getY() - startingCoordinates1.getFoldedCoordinates().getY()) / 2 + startingCoordinates1.getFoldedCoordinates().getY(),
@@ -182,18 +204,18 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		int[][] rotationMatrix = null;
 		Coordinates3D shiftToAxisVector = null;
 		if (rotationAxis[0] > 0) {
-			if (foldingCubeCorner.getCubeBorder1().getDirectionToLeave() == Direction.UP) {
+			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.UP) {
 				rotationMatrix = X_AXIS_CLOCKWISE;
-			} else if (foldingCubeCorner.getCubeBorder1().getDirectionToLeave() == Direction.DOWN) {
+			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.DOWN) {
 				rotationMatrix = X_AXIS_COUNTER_CLOCKWISE;
 			} else {
 				System.out.println();
 			}
 			shiftToAxisVector = new Coordinates3D(0, -startingMiddle.getY(), -startingMiddle.getZ());
 		} else if (rotationAxis[1] > 0) {
-			if (foldingCubeCorner.getCubeBorder1().getDirectionToLeave() == Direction.LEFT) {
+			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.LEFT) {
 				rotationMatrix = Y_AXIS_CLOCKWISE;
-			} else if (foldingCubeCorner.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT) {
+			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT) {
 				rotationMatrix = Y_AXIS_COUNTER_CLOCKWISE;
 			} else {
 				System.out.println();
@@ -209,12 +231,9 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		return new RotationProperties(shiftToAxisVector, rotationMatrix);
 	}
 
-	public void rotateCoordinates(List<FoldedCoordinates> foldedCoordinates, RotationProperties rotationProperties) {
+	private void rotateCoordinates(List<FoldedCoordinates> foldedCoordinates, RotationProperties rotationProperties) {
 
 		for (FoldedCoordinates foldedCoordinate : foldedCoordinates) {
-			final float xOriginal = foldedCoordinate.getFoldedCoordinates().getX();
-			final float yOriginal = foldedCoordinate.getFoldedCoordinates().getY();
-			final float zOriginal = foldedCoordinate.getFoldedCoordinates().getZ();
 
 			final float xShifted = foldedCoordinate.getFoldedCoordinates().getX() + rotationProperties.getShiftToAxisVector().getX();
 			final float yShifted = foldedCoordinate.getFoldedCoordinates().getY() + rotationProperties.getShiftToAxisVector().getY();
@@ -228,6 +247,10 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 			foldedCoordinate.getFoldedCoordinates().setY(secondRotationRow[0] * xShifted + secondRotationRow[1] * yShifted + secondRotationRow[2] * zShifted - rotationProperties.getShiftToAxisVector().getY());
 			foldedCoordinate.getFoldedCoordinates().setZ(thirdRotationRow[0] * xShifted + thirdRotationRow[1] * yShifted + thirdRotationRow[2] * zShifted - rotationProperties.getShiftToAxisVector().getZ());
 		}
+	}
+
+	private List<FoldedCoordinates> getConnectedFacings(FoldingLine foldingLine, List<FoldingLine> allRemainingFoldingLines) {
+		return this.facingElements.get(foldingLine.getCubeBorder2().getFacingID());
 	}
 
 	@Override protected boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {
