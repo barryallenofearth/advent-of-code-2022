@@ -44,13 +44,40 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 		final int cubeLength = maxX > 50 ? 50 : 4;
 
 		determineCubeFacings(boardElements, maxX, maxY, cubeLength);
+		printOriginalFacings(maxX, maxY);
 		final List<CubeBorder> cubeBorderList = foldCubeAndReturnBorders(boardElements);
 
 		findAdjacentFields(cubeBorderList);
-		printOriginalFacings(maxX, maxY);
 	}
 
 	private void findAdjacentFields(List<CubeBorder> cubeBorderList) {
+		Map<CubeBorder, CubeBorder> closestNeighbors = determineClosestNeighborBorders(cubeBorderList);
+
+		for (Map.Entry<CubeBorder, CubeBorder> neighborBorders : closestNeighbors.entrySet()) {
+			final CubeBorder border1 = neighborBorders.getKey();
+			final CubeBorder border2 = neighborBorders.getValue();
+			for (FoldedCoordinates current : border1.getCornerCoordinates()) {
+				float minDistance = Float.MAX_VALUE;
+				for (FoldedCoordinates comparison : border2.getCornerCoordinates()) {
+					if (current.equals(comparison)) {
+						continue;
+					}
+					final Coordinates3D currentCoordinates3D = current.getFoldedCoordinates();
+					final Coordinates3D comparisonCoordinates3D = comparison.getFoldedCoordinates();
+					float distance = Math.abs(currentCoordinates3D.getX() - comparisonCoordinates3D.getX()) + Math.abs(currentCoordinates3D.getY() - comparisonCoordinates3D.getY()) + Math
+							.abs(currentCoordinates3D.getZ() - comparisonCoordinates3D.getZ());
+					if (distance < minDistance) {
+						whereToNext.put(new FacingAndDirection(border1.getFacingID(), border1.getDirectionToLeave(), current.getOriginalCoordinates()),
+								new FacingAndDirection(border2.getFacingID(), border2.getDirectionToLeave(), comparison.getOriginalCoordinates()));
+
+						minDistance = distance;
+					}
+				}
+			}
+		}
+	}
+
+	private Map<CubeBorder, CubeBorder> determineClosestNeighborBorders(List<CubeBorder> cubeBorderList) {
 		Map<CubeBorder, CubeBorder> closestNeighbors = new HashMap<>();
 		int middleIndex = cubeBorderList.get(0).getCornerCoordinates().size() / 2;
 		for (CubeBorder cubeBorder : cubeBorderList) {
@@ -67,16 +94,8 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 					minDistance = distance;
 				}
 			}
-			if (cubeBorder.getFacingID() == closestNeighbors.get(cubeBorder).getFacingID()) {
-				throw new IllegalStateException("No face may be closest to itself: " + cubeBorder.getFacingID() + " " + cubeBorder.getDirectionToLeave() + " <-> " + closestNeighbors.get(cubeBorder).getFacingID() + " " + closestNeighbors
-						.get(cubeBorder).getDirectionToLeave() + " " + minDistance);
-			}
-			System.out.println(cubeBorder.getFacingID() + " " + cubeBorder.getDirectionToLeave() + " " + minDistance + " " + closestNeighbors.get(cubeBorder).getFacingID() + " " + closestNeighbors.get(cubeBorder).getDirectionToLeave());
 		}
-
-		for (Map.Entry<CubeBorder, CubeBorder> cubeBorderCubeBorderEntry : closestNeighbors.entrySet()) {
-
-		}
+		return closestNeighbors;
 	}
 
 	private void printOriginalFacings(int maxX, int maxY) {
@@ -179,7 +198,6 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.DOWN, downFacing));
 
-			System.out.println("min (" + minX + "," + minY + ") and max (" + maxX + "," + maxY + ")");
 		}
 
 		return cubeBorderList;
@@ -204,9 +222,6 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 			return new FoldingLine(border, partnerBorder);
 		}).collect(Collectors.toList());
 
-		foldingLines.forEach(foldingLine -> System.out
-				.println(foldingLine.getCubeBorder1().getFacingID() + " " + foldingLine.getCubeBorder1().getDirectionToLeave() + "->" + foldingLine.getCubeBorder2().getFacingID() + " " + foldingLine.getCubeBorder2()
-						.getDirectionToLeave()));
 		return foldingLines;
 	}
 
@@ -252,9 +267,9 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 			}
 			shiftToAxisVector = new Coordinates3D(-startingMiddle.getX(), 0, -startingMiddle.getZ());
 		} else if (rotationAxis[2] > 0) {
-			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.LEFT) {
+			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.LEFT || foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.DOWN) {
 				rotationMatrix = Z_AXIS_CLOCKWISE;
-			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT) {
+			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT || foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.UP) {
 				rotationMatrix = Z_AXIS_COUNTER_CLOCKWISE;
 			} else {
 				System.out.println();
@@ -312,6 +327,7 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 	}
 
 	@Override protected boolean checkAndHandleWrappingAround(MapAndInstructions mapAndInstructions, MyPosition myPosition) {
+		myPosition.getDirection().getReverse().accept(myPosition.getCoordinates());
 		Optional<Integer> facingID = facingElements.entrySet().stream()
 				.filter(entry -> entry.getValue().stream()
 						.anyMatch(foldedCoordinates -> foldedCoordinates.getOriginalCoordinates().equals(myPosition.getCoordinates())))
@@ -319,17 +335,28 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 				.findFirst();
 
 		if (facingID.isEmpty()) {
-			myPosition.getDirection().getReverse().accept(myPosition.getCoordinates());
 			return true;
 		}
 
 		final FacingAndDirection next = whereToNext.get(new FacingAndDirection(facingID.get(), myPosition.getDirection(), myPosition.getCoordinates()));
 		if (next != null) {
+			if (mapAndInstructions.getBlockedCoordinates().contains(next.getCoordinates())) {
+				return true;
+			}
 			myPosition.getCoordinates().setX(next.getCoordinates().getX());
 			myPosition.getCoordinates().setY(next.getCoordinates().getY());
-			myPosition.setDirection(next.getDirection());
+			if (next.getDirection() == Direction.UP) {
+				myPosition.setDirection(Direction.DOWN);
+			} else if (next.getDirection() == Direction.DOWN) {
+				myPosition.setDirection(Direction.UP);
+			} else if (next.getDirection() == Direction.LEFT) {
+				myPosition.setDirection(Direction.RIGHT);
+			} else if (next.getDirection() == Direction.RIGHT) {
+				myPosition.setDirection(Direction.LEFT);
+			}
 			return false;
 		}
+
 		return true;
 	}
 }
