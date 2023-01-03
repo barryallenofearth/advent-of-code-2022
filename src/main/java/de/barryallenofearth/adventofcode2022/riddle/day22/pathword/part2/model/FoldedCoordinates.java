@@ -5,11 +5,7 @@ import lombok.Data;
 
 @Data
 public class FoldedCoordinates {
-	private final float x;
-
-	private final float y;
-
-	private final float z;
+	private final Coordinates3D foldedCoordinates;
 
 	private final Coordinates originalCoordinates;
 }
