@@ -13,12 +13,12 @@ public class ValleyReader {
 
 		Valley valley = new Valley();
 		final List<Blizzard> blizzardList = new ArrayList<>();
-		for (int y = 0, stringsSize = strings.size(); y < stringsSize; y++) {
+		for (int y = 0; y < strings.size(); y++) {
 			String line = strings.get(y);
 			for (int x = 0; x < line.length(); x++) {
 				final char currentChar = line.charAt(x);
 				final Coordinates coordinates = new Coordinates(x, y);
-				if (currentChar == '.') {
+				if (currentChar != '#') {
 					valley.getFields().add(coordinates);
 					if (y == 0) {
 						valley.setEntry(coordinates);
@@ -26,13 +26,17 @@ public class ValleyReader {
 						valley.setExit(coordinates);
 					}
 
-				} else if (currentChar != '#') {
 					final Direction direction = Direction.getByKey(currentChar);
-					blizzardList.add(new Blizzard(coordinates, direction));
+					if (direction != null) {
+						blizzardList.add(new Blizzard(new Coordinates(x, y), direction));
+					}
 				}
 			}
 
 		}
+
+		valley.setMaxY(strings.size() - 2);
+		valley.setMaxX(strings.get(0).length() - 2);
 		return new InitialState(valley, blizzardList);
 	}
 }

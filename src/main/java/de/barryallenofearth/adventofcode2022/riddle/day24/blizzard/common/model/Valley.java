@@ -13,4 +13,13 @@ public class Valley {
 	private Coordinates exit;
 
 	private final List<Coordinates> fields = new ArrayList<>();
+
+	private int minX = 1;
+
+	private int minY = 1;
+
+	private int maxX;
+
+	private int maxY;
+
 }
