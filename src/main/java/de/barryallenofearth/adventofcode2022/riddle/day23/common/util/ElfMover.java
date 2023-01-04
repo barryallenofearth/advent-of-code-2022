@@ -8,24 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ElfMover {
+public abstract class ElfMover {
 
-	public void moveForXRounds(List<Elf> elves, int numberOfRounds) {
-		for (int round = 0; round < numberOfRounds; round++) {
-			proposeNextPosition(round, elves);
-			//no elf needs to move anymore
-			if (elves.stream().noneMatch(elf -> elf.getProposedNextPosition().isPresent())) {
-				return;
-			}
+	public abstract int move(List<Elf> elves, int numberOfRounds);
 
-			preventMovingToSameSpace(elves);
-			moveElves(elves);
-
-			System.out.println("after round " + round);
-		}
-	}
-
-	private void moveElves(List<Elf> elves) {
+	protected void moveElves(List<Elf> elves) {
 		for (Elf elf : elves) {
 			if (elf.getProposedNextPosition().isEmpty()) {
 				continue;
@@ -36,7 +23,7 @@ public class ElfMover {
 		}
 	}
 
-	private void preventMovingToSameSpace(List<Elf> elves) {
+	protected void preventMovingToSameSpace(List<Elf> elves) {
 		for (Elf elf : elves) {
 			if (elf.getProposedNextPosition().isEmpty()) {
 				continue;
@@ -57,7 +44,7 @@ public class ElfMover {
 		}
 	}
 
-	private void proposeNextPosition(int round, List<Elf> elves) {
+	protected void proposeNextPosition(int round, List<Elf> elves) {
 		final List<Coordinates> allElfCoordinates = elves.stream()
 				.map(Elf::getCoordinates)
 				.collect(Collectors.toList());
@@ -67,7 +54,7 @@ public class ElfMover {
 			int testedDirections = 0;
 			MovingDirection[] movingDirections = MovingDirection.values();
 			for (int index = 0; index < movingDirections.length; index++) {
-				MovingDirection movingDirection = movingDirections[(index + round) % movingDirections.length];
+				MovingDirection movingDirection = movingDirections[(index + round-1) % movingDirections.length];
 				if (movingDirection.getIsPositionFree().test(elf.getCoordinates(), allElfCoordinates)) {
 					testedDirections++;
 					if (elf.getProposedNextPosition().isEmpty()) {
