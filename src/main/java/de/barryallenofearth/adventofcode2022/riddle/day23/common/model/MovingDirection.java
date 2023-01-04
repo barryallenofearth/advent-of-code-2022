@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 @Getter
 @RequiredArgsConstructor
-public enum MovingDirections {
+public enum MovingDirection {
 	NORTH(coordinates -> coordinates.setY(coordinates.getY() - 1), (elfPosition, allElves) -> {
 		final Coordinates north = new Coordinates(elfPosition.getX(), elfPosition.getY() - 1);
 		final Coordinates northEast = new Coordinates(elfPosition.getX() + 1, elfPosition.getY() - 1);
