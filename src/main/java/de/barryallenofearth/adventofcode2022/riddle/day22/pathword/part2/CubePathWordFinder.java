@@ -184,18 +184,23 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 			final List<FoldedCoordinates> leftFacing = facingElements.stream()
 					.filter(coordinates -> coordinates.getOriginalCoordinates().getX() == minX)
 					.collect(Collectors.toList());
+			Collections.reverse(leftFacing);
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.LEFT, leftFacing));
+
 			final List<FoldedCoordinates> rightFacing = facingElements.stream()
 					.filter(coordinates -> coordinates.getOriginalCoordinates().getX() == maxX)
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.RIGHT, rightFacing));
+
 			final List<FoldedCoordinates> upFacing = facingElements.stream()
 					.filter(coordinates -> coordinates.getOriginalCoordinates().getY() == minY)
 					.collect(Collectors.toList());
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.UP, upFacing));
+
 			final List<FoldedCoordinates> downFacing = facingElements.stream()
 					.filter(coordinates -> coordinates.getOriginalCoordinates().getY() == maxY)
 					.collect(Collectors.toList());
+			Collections.reverse(downFacing);
 			cubeBorderList.add(new CubeBorder(facing.getKey(), Direction.DOWN, downFacing));
 
 		}
@@ -234,9 +239,9 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 
 	private RotationProperties getRotationProperties(FoldingLine foldingLine) {
 		final FoldedCoordinates startingCoordinates1 = foldingLine.getCubeBorder1().getCornerCoordinates().get(0);
-		final FoldedCoordinates startingCoordinates2 = foldingLine.getCubeBorder2().getCornerCoordinates().get(0);
+		final FoldedCoordinates startingCoordinates2 = foldingLine.getCubeBorder2().getCornerCoordinates().get(foldingLine.getCubeBorder2().getCornerCoordinates().size() - 1);
 		final FoldedCoordinates stopCoordinates1 = foldingLine.getCubeBorder1().getCornerCoordinates().get(foldingLine.getCubeBorder1().getCornerCoordinates().size() - 1);
-		final FoldedCoordinates stopCoordinates2 = foldingLine.getCubeBorder2().getCornerCoordinates().get(foldingLine.getCubeBorder2().getCornerCoordinates().size() - 1);
+		final FoldedCoordinates stopCoordinates2 = foldingLine.getCubeBorder2().getCornerCoordinates().get(0);
 
 		final Coordinates3D startingMiddle = new Coordinates3D((startingCoordinates2.getFoldedCoordinates().getX() - startingCoordinates1.getFoldedCoordinates().getX()) / 2 + startingCoordinates1.getFoldedCoordinates().getX(),
 				(startingCoordinates2.getFoldedCoordinates().getY() - startingCoordinates1.getFoldedCoordinates().getY()) / 2 + startingCoordinates1.getFoldedCoordinates().getY(),
@@ -245,39 +250,33 @@ public class CubePathWordFinder extends AbstractPathwordFinder {
 				(stopCoordinates2.getFoldedCoordinates().getY() - stopCoordinates1.getFoldedCoordinates().getY()) / 2 + stopCoordinates1.getFoldedCoordinates().getY(),
 				(stopCoordinates2.getFoldedCoordinates().getZ() - stopCoordinates1.getFoldedCoordinates().getZ()) / 2 + stopCoordinates1.getFoldedCoordinates().getZ());
 
-		float[] rotationAxis = { Math.abs(stopMiddle.getX() - startingMiddle.getX()), Math.abs(stopMiddle.getY() - startingMiddle.getY()), Math.abs(stopMiddle.getZ() - startingMiddle.getZ()) };
+		float[] rotationAxis = { stopMiddle.getX() - startingMiddle.getX(), stopMiddle.getY() - startingMiddle.getY(), stopMiddle.getZ() - startingMiddle.getZ() };
 		int[][] rotationMatrix = null;
 		Coordinates3D shiftToAxisVector = null;
-		if (rotationAxis[0] > 0) {
-			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.UP) {
+		if (Math.abs(rotationAxis[0]) > 0) {
+			if (rotationAxis[0] > 0) {
 				rotationMatrix = X_AXIS_CLOCKWISE;
-			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.DOWN) {
-				rotationMatrix = X_AXIS_COUNTER_CLOCKWISE;
 			} else {
-				System.out.println();
+				rotationMatrix = X_AXIS_COUNTER_CLOCKWISE;
 			}
 			shiftToAxisVector = new Coordinates3D(0, -startingMiddle.getY(), -startingMiddle.getZ());
-		} else if (rotationAxis[1] > 0) {
-			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.LEFT) {
+		} else if (Math.abs(rotationAxis[1]) > 0) {
+			if (rotationAxis[1] > 0) {
 				rotationMatrix = Y_AXIS_CLOCKWISE;
-			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT) {
-				rotationMatrix = Y_AXIS_COUNTER_CLOCKWISE;
 			} else {
-				System.out.println();
+				rotationMatrix = Y_AXIS_COUNTER_CLOCKWISE;
 			}
 			shiftToAxisVector = new Coordinates3D(-startingMiddle.getX(), 0, -startingMiddle.getZ());
-		} else if (rotationAxis[2] > 0) {
-			if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.LEFT || foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.DOWN) {
-				rotationMatrix = Z_AXIS_CLOCKWISE;
-			} else if (foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.RIGHT || foldingLine.getCubeBorder1().getDirectionToLeave() == Direction.UP) {
+		} else if (Math.abs(rotationAxis[2]) > 0) {
+			if (rotationAxis[2] > 0) {
 				rotationMatrix = Z_AXIS_COUNTER_CLOCKWISE;
 			} else {
-				System.out.println();
+				rotationMatrix = Z_AXIS_CLOCKWISE;
 			}
 			shiftToAxisVector = new Coordinates3D(-startingMiddle.getX(), -startingMiddle.getY(), 0);
 		}
 		if (shiftToAxisVector == null) {
-			throw new IllegalStateException("A shift to axis vector needs to be defined");
+			throw new IllegalStateException("A shift to axis vector needs to be defined. rotation axis is: x=" + rotationAxis[0] + " y=" + rotationAxis[1] + " z=" + rotationAxis[2]);
 		}
 		if (rotationMatrix == null) {
 			throw new IllegalStateException("A rotation matrix needs to be defined");
