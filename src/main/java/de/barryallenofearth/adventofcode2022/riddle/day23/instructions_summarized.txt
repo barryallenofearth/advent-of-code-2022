@@ -1,0 +1,31 @@
+two phases for each elf:
+1) where to go
+2) move
+
+Option 1
+1) no adjacent elf
+2) don't move
+
+Option 2
+1) no elf is northish
+2) propose move north
+
+Option 3
+1) no elf is southish
+2) propose move south
+
+Option 4
+1) no elf is westish
+2) propose move west
+
+Option 5
+1) no elf is eastish
+2) propose move east
+
+all elves with only field proposed move to that position, otherwise don't move
+
+after moving -> cycle first consideration direction => now first option is option 3, then 4, then 5, then 1
+
+end if no elf needs to move anymore
+
+solution: after 10 rounds find smallest rect to contain all elves and count empty fields!
