@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.day24.common.model;
+package de.barryallenofearth.adventofcode2022.riddle.day24.blizzard.common.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,4 +17,13 @@ public enum Direction {
 	private final char key;
 
 	private final Consumer<Coordinates> move;
+
+	public static Direction getByKey(char key) {
+		for (Direction direction : Direction.values()) {
+			if (direction.getKey() == key) {
+				return direction;
+			}
+		}
+		return null;
+	}
 }

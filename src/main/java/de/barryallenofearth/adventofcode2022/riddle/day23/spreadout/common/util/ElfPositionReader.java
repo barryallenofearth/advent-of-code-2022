@@ -1,7 +1,7 @@
-package de.barryallenofearth.adventofcode2022.riddle.day23.common.util;
+package de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.util;
 
-import de.barryallenofearth.adventofcode2022.riddle.day23.common.model.Coordinates;
-import de.barryallenofearth.adventofcode2022.riddle.day23.common.model.Elf;
+import de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.model.Coordinates;
+import de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.model.Elf;
 import de.barryallenofearth.adventofcode2022.riddle.util.RiddleFileReader;
 
 import java.util.ArrayList;

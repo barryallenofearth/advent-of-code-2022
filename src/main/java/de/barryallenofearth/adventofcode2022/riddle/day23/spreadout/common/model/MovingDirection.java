@@ -1,6 +1,5 @@
-package de.barryallenofearth.adventofcode2022.riddle.day23.common.model;
+package de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.model;
 
-import de.barryallenofearth.adventofcode2022.riddle.day23.common.model.Coordinates;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

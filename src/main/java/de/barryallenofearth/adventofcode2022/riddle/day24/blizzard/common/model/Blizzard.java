@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.day24.common.model;
+package de.barryallenofearth.adventofcode2022.riddle.day24.blizzard.common.model;
 
 import lombok.Data;
 

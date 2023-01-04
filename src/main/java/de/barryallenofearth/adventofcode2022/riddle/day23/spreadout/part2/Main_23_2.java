@@ -1,8 +1,8 @@
-package de.barryallenofearth.adventofcode2022.riddle.day23.part2;
+package de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.part2;
 
-import de.barryallenofearth.adventofcode2022.riddle.day23.common.model.Elf;
-import de.barryallenofearth.adventofcode2022.riddle.day23.common.util.CountAndPrintFreeSpaces;
-import de.barryallenofearth.adventofcode2022.riddle.day23.common.util.ElfPositionReader;
+import de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.model.Elf;
+import de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.util.CountAndPrintFreeSpaces;
+import de.barryallenofearth.adventofcode2022.riddle.day23.spreadout.common.util.ElfPositionReader;
 
 import java.util.List;
 
