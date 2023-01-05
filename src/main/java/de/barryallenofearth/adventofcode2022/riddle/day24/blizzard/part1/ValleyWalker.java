@@ -10,120 +10,100 @@ public class ValleyWalker {
 
 	private Map<Integer, List<Coordinates>> blizzardCoordinateCache = new HashMap<>();
 
-	public ValleyAndExpeditionState walkInMinimumTime(InitialState initialState) {
+	public static final int MINIMUM_MINUTES = 800;
 
-		int minimumMinutes = 808;
+	public ExpeditionState walkInMinimumTime(InitialState initialState) {
 
-		fillBlizzardCache(initialState, minimumMinutes);
+		fillBlizzardCache(initialState);
 
 		final Valley valley = initialState.getValley();
+		System.out.println("Minimum distance " + (Math.abs(valley.getExit().getX() - valley.getEntry().getX()) + Math.abs(valley.getExit().getY() - valley.getEntry().getY())));
 
-		ValleyAndExpeditionState start = new ValleyAndExpeditionState();
+		ExpeditionState start = new ExpeditionState();
 		start.setExpeditionLocation(new Coordinates(valley.getEntry().getX(), valley.getEntry().getY()));
 
-		ValleyAndExpeditionState minState = start;
-
-		final Stack<ValleyAndExpeditionState> openNodes = new Stack<>();
+		final Set<ExpeditionState> openNodes = new HashSet<>();
 		openNodes.add(start);
 
-		int numberOfNodesEvaluated = 0;
-		int numberOfSuccessfulNodesEvaluated = 0;
-		//printState(valley, start, initialState);
-		while (!openNodes.isEmpty()) {
-			final ValleyAndExpeditionState currentState = openNodes.pop();
-			while (!currentState.getExpeditionLocation().equals(valley.getExit())) {
-				if (abortBranch(valley, minimumMinutes, currentState, openNodes)) {
-					break;
-				}
-				currentState.setMinute(currentState.getMinute() + 1);
-
-				final List<Coordinates> availableOptions = Stream.of(Direction.values())
-						.map(direction -> {
-							final Coordinates coordinates = new Coordinates(currentState.getExpeditionLocation().getX(), currentState.getExpeditionLocation().getY());
-							direction.getMove().accept(coordinates);
-							return coordinates;
-						})
-						.filter(coordinates -> !blizzardCoordinateCache.get(currentState.getMinute()).contains(coordinates))
-						.filter(coordinates -> valley.getFields().contains(coordinates))
-						.sorted(Comparator.comparing(coordinates -> {
-							final Coordinates exit = valley.getExit();
-							return Math.abs(exit.getX() - coordinates.getX()) + Math.abs(exit.getY() - coordinates.getY());
-						})).collect(Collectors.toList());
-				if (availableOptions.isEmpty()) {
-					//no options remaining and current position is occupied by blizzard
-					if (blizzardCoordinateCache.get(currentState.getMinute()).contains(currentState.getExpeditionLocation())) {
-						break;
-					}
-					//else wait
-				} else if (availableOptions.size() == 1) {
-					currentState.getExpeditionLocation().setX(availableOptions.get(0).getX());
-					currentState.getExpeditionLocation().setY(availableOptions.get(0).getY());
-					//				if (currentState.getBlizzardList().stream().noneMatch(blizzard -> blizzard.getCoordinates().equals(currentState.getExpeditionLocation()))) {
-					//					createNewBranch(openNodes, currentState, new Coordinates(currentState.getExpeditionLocation().getX(), currentState.getExpeditionLocation().getY()));
-					//				}
-
-				} else {
-					currentState.getExpeditionLocation().setX(availableOptions.get(0).getX());
-					currentState.getExpeditionLocation().setY(availableOptions.get(0).getY());
-					for (int possibility = 1; possibility < availableOptions.size(); possibility++) {
-						createNewBranch(openNodes, currentState, availableOptions.get(possibility));
-					}
-					//			if (currentState.getBlizzardList().stream().noneMatch(blizzard -> blizzard.getCoordinates().equals(currentState.getExpeditionLocation()))) {
-					//				createNewBranch(openNodes, currentState, new Coordinates(currentState.getExpeditionLocation().getX(), currentState.getExpeditionLocation().getY()));
-					//			}
-				}
-			}
-			numberOfNodesEvaluated++;
+		int numberOfSteps = 0;
+		ExpeditionState currentState = null;
+		do {
+			currentState = openNodes.stream()
+					.sorted(Comparator.comparingInt(ExpeditionState::getMinute)).findFirst()
+					.get();
+			openNodes.remove(currentState);
 			if (currentState.getExpeditionLocation().equals(valley.getExit())) {
-				numberOfSuccessfulNodesEvaluated++;
+				break;
 			}
-			if (numberOfNodesEvaluated % 100_000 == 0) {
-				System.out.println(numberOfNodesEvaluated + " branches evaluated. Current minium is: " + minimumMinutes);
-				System.out.println(numberOfSuccessfulNodesEvaluated + " branches successfully evaluated.");
-			}
+			//if (abortBranch(valley, currentState, openNodes)) {
+			//	continue;
+			//}
+			final int minute = currentState.getMinute() + 1;
+			currentState.setMinute(minute);
 
-			if (currentState.getMinute() < minimumMinutes && currentState.getExpeditionLocation().equals(valley.getExit())) {
-				minimumMinutes = currentState.getMinute();
-				minState = currentState;
-				System.out.println(minimumMinutes + " is the new best time.");
-				//printState(valley, currentState, initialState);
+			final Coordinates expeditionLocation = currentState.getExpeditionLocation();
+			final List<Coordinates> availableOptions = Stream.of(Direction.values())
+					.map(direction -> direction.getMove().apply(expeditionLocation))
+					.filter(coordinates -> !blizzardCoordinateCache.get(minute).contains(coordinates))
+					.filter(coordinates -> valley.getFields().contains(coordinates))
+					.collect(Collectors.toList());
+			if (availableOptions.isEmpty()) {
+				//no options remaining and current position is occupied by blizzard
+				if (blizzardCoordinateCache.get(currentState.getMinute()).contains(currentState.getExpeditionLocation())) {
+					continue;
+				}
+				createNewBranch(openNodes, currentState, new Coordinates(currentState.getExpeditionLocation().getX(), currentState.getExpeditionLocation().getY()));
+			} else {
+				//else wait
+				if (!blizzardCoordinateCache.get(currentState.getMinute()).contains(currentState.getExpeditionLocation())) {
+					createNewBranch(openNodes, currentState, new Coordinates(currentState.getExpeditionLocation().getX(), currentState.getExpeditionLocation().getY()));
+				}
+
+				for (Coordinates availableOption : availableOptions) {
+					createNewBranch(openNodes, currentState, availableOption);
+				}
 			}
+			numberOfSteps++;
+			if (numberOfSteps % 100_000 == 0) {
+				System.out.println(numberOfSteps + " steps taken. Current minute is: " + minute);
+			}
+		} while (!openNodes.isEmpty());
+
+		if (currentState.getExpeditionLocation().equals(valley.getExit())) {
+			return currentState;
 		}
-		System.out.println(numberOfNodesEvaluated + " branches evaluated.");
-
-		return minState;
+		throw new IllegalStateException("Target was not reached. Final position after " + currentState.getMinute()
+				+ " minutes is (" + currentState.getExpeditionLocation().getX() + "," + currentState.getExpeditionLocation().getY() + ")");
 	}
 
-	private void fillBlizzardCache(InitialState initialState, int minimumMinutes) {
+	private void fillBlizzardCache(InitialState initialState) {
 		final Map<Integer, List<Blizzard>> blizzardCache = new HashMap<>();
-		blizzardCache.put(0, initialState.getBlizzardList().stream()
-				.map(blizzard -> new Blizzard(new Coordinates(blizzard.getCoordinates().getX(), blizzard.getCoordinates().getY()), blizzard.getDirection()))
-				.collect(Collectors.toList()));
-		for (int minute = 1; minute <= minimumMinutes; minute++) {
+		blizzardCache.put(0, initialState.getBlizzardList());
+		for (int minute = 1; minute <= MINIMUM_MINUTES; minute++) {
 			final List<Blizzard> previousBlizzard = blizzardCache.get(minute - 1);
 			blizzardCache.put(minute, new ArrayList<>());
 			for (Blizzard oldBlizzard : previousBlizzard) {
-				final Blizzard blizzard = new Blizzard(new Coordinates(oldBlizzard.getCoordinates().getX(), oldBlizzard.getCoordinates().getY()), oldBlizzard.getDirection());
-				blizzardCache.get(minute).add(blizzard);
-				blizzard.getDirection().getMove().accept(blizzard.getCoordinates());
+				final Blizzard blizzard = new Blizzard(oldBlizzard.getDirection().getMove().apply(oldBlizzard.getCoordinates()), oldBlizzard.getDirection());
 				if (!initialState.getValley().getFields().contains(blizzard.getCoordinates())) {
 					wrapBlizzardMovement(initialState.getValley(), blizzard);
 				}
+				blizzardCache.get(minute).add(blizzard);
 			}
 		}
-		blizzardCoordinateCache = blizzardCache.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(Blizzard::getCoordinates).collect(Collectors.toList())));
+		blizzardCoordinateCache = blizzardCache.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(Blizzard::getCoordinates).collect(Collectors.toList())));
 	}
 
-	private boolean abortBranch(Valley valley, int minimumMinutes, ValleyAndExpeditionState currentState, Stack<ValleyAndExpeditionState> openNodes) {
+	private boolean abortBranch(Valley valley, ExpeditionState currentState, Set<ExpeditionState> openNodes) {
 		final int stepsToExit = Math.abs(valley.getExit().getX() - currentState.getExpeditionLocation().getX()) + Math.abs(valley.getExit().getY() - currentState.getExpeditionLocation().getY());
-		if (currentState.getMinute() + stepsToExit >= minimumMinutes) {
+		if (currentState.getMinute() + stepsToExit >= MINIMUM_MINUTES) {
 			return true;
 		}
-		return openNodes.stream().anyMatch(openNode -> openNode.getMinute() == currentState.getMinute() && openNode.getExpeditionLocation().equals(currentState.getExpeditionLocation()));
+		return false;
 	}
 
-	private void createNewBranch(Stack<ValleyAndExpeditionState> openNodes, ValleyAndExpeditionState currentState, Coordinates coordinates) {
-		final ValleyAndExpeditionState next = new ValleyAndExpeditionState();
+	private void createNewBranch(Set<ExpeditionState> openNodes, ExpeditionState currentState, Coordinates coordinates) {
+		final ExpeditionState next = new ExpeditionState();
 		next.setMinute(currentState.getMinute());
 		next.setExpeditionLocation(coordinates);
 		openNodes.add(next);
