@@ -45,7 +45,6 @@ public class SnafuConverter {
 		int maximumPotency = determineMaximumPotency(decimal);
 
 		final String lowestSnafuNumber = buildLowestSnafuNumber(maximumPotency);
-		System.out.println(lowestSnafuNumber);
 
 		snafuNumber = lowestSnafuNumber;
 		for (int index = 0; index < lowestSnafuNumber.length(); index++) {
