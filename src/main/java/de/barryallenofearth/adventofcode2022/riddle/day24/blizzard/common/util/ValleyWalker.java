@@ -1,4 +1,4 @@
-package de.barryallenofearth.adventofcode2022.riddle.day24.blizzard.part1;
+package de.barryallenofearth.adventofcode2022.riddle.day24.blizzard.common.util;
 
 import de.barryallenofearth.adventofcode2022.riddle.day24.blizzard.common.model.*;
 
@@ -12,14 +12,16 @@ public class ValleyWalker {
 
 	public static final int MINIMUM_MINUTES = 800;
 
-	public ExpeditionState walkInMinimumTime(InitialState initialState) {
-
-		fillBlizzardCache(initialState);
+	public ExpeditionState walkInMinimumTime(InitialState initialState, int startingMinute) {
 
 		final Valley valley = initialState.getValley();
-		System.out.println("Minimum distance " + (Math.abs(valley.getExit().getX() - valley.getEntry().getX()) + Math.abs(valley.getExit().getY() - valley.getEntry().getY())));
+		if (startingMinute == 0) {
+			System.out.println("Minimum distance " + (Math.abs(valley.getExit().getX() - valley.getEntry().getX()) + Math.abs(valley.getExit().getY() - valley.getEntry().getY())));
+			fillBlizzardCache(initialState);
+		}
 
 		ExpeditionState start = new ExpeditionState();
+		start.setMinute(startingMinute);
 		start.setExpeditionLocation(new Coordinates(valley.getEntry().getX(), valley.getEntry().getY()));
 
 		final Set<ExpeditionState> openNodes = new HashSet<>();
@@ -77,6 +79,7 @@ public class ValleyWalker {
 	}
 
 	private void fillBlizzardCache(InitialState initialState) {
+		System.out.println("Fill blizzard cache.");
 		final Map<Integer, List<Blizzard>> blizzardCache = new HashMap<>();
 		blizzardCache.put(0, initialState.getBlizzardList());
 		for (int minute = 1; minute <= MINIMUM_MINUTES; minute++) {
@@ -92,6 +95,7 @@ public class ValleyWalker {
 		}
 		blizzardCoordinateCache = blizzardCache.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().map(Blizzard::getCoordinates).collect(Collectors.toList())));
+		System.out.println("Blizzard cache filled.");
 	}
 
 	private boolean abortBranch(Valley valley, ExpeditionState currentState, Set<ExpeditionState> openNodes) {
