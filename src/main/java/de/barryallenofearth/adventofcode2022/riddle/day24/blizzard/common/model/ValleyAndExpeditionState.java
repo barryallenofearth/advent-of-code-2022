@@ -12,6 +12,4 @@ public class ValleyAndExpeditionState {
 
 	private Coordinates expeditionLocation;
 
-	private final List<Blizzard> blizzardList = new ArrayList<>();
-
 }
