@@ -28,7 +28,8 @@ public class ValleyWalker {
 		while (!openNodes.isEmpty()) {
 			final ValleyAndExpeditionState currentState = openNodes.pop();
 			while (!currentState.getExpeditionLocation().equals(valley.getExit())) {
-				if (currentState.getMinute() >= minimumMinutes) {
+				final int stepsToExit = Math.abs(valley.getExit().getX() - currentState.getExpeditionLocation().getX()) + Math.abs(valley.getExit().getY() - currentState.getExpeditionLocation().getY());
+				if (currentState.getMinute() + stepsToExit >= minimumMinutes) {
 					break;
 				}
 				for (Blizzard blizzard : currentState.getBlizzardList()) {
