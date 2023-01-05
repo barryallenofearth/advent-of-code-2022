@@ -18,7 +18,7 @@ public class ValleyWalker {
 		start.setExpeditionLocation(valley.getEntry());
 
 		ValleyAndExpeditionState minState = start;
-		int minimumMinutes = Integer.MAX_VALUE;
+		int minimumMinutes = 807;
 
 		final Stack<ValleyAndExpeditionState> openNodes = new Stack<>();
 		openNodes.add(start);
@@ -28,7 +28,7 @@ public class ValleyWalker {
 		while (!openNodes.isEmpty()) {
 			final ValleyAndExpeditionState currentState = openNodes.pop();
 			while (!currentState.getExpeditionLocation().equals(valley.getExit())) {
-				if (currentState.getMinute() > minimumMinutes) {
+				if (currentState.getMinute() >= minimumMinutes) {
 					break;
 				}
 				for (Blizzard blizzard : currentState.getBlizzardList()) {
