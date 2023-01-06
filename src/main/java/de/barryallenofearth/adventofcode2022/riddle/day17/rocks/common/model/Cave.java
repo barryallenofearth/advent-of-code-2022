@@ -23,7 +23,7 @@ public class Cave {
         final long[] minHeight = {Integer.MAX_VALUE};
 
         currentRockHeight = 0;
-        for (long x = X_LEFT_BORDER + 1; x < X_RIGHT_BORDER - 1; x++) {
+        for (long x = X_LEFT_BORDER ; x <= X_RIGHT_BORDER; x++) {
             final long highestHeightInColumn = getHighestHeightInColumn(x);
             if (highestHeightInColumn < minHeight[0]) {
                 minHeight[0] = highestHeightInColumn;
