@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class HandleFallingRocks {
 
@@ -22,60 +23,36 @@ public class HandleFallingRocks {
 		final String gasStreams = RiddleFileReader.readAllLines("riddle-17.txt").get(0);
 		long lastMovementIndex = 0;
 		final LocalDateTime startingTime = LocalDateTime.now();
-		Map.Entry<Cycle, CycleValue> firstCycle = null;
+		long cycleLength = 0;
+		long cycleIncrement = 0;
 		for (long rockCount = 0; rockCount < numberOfRocks; rockCount++) {
 			if (rockCount % STEPS_TO_DISPLAY == 0) {
 				System.out.println(Duration.between(startingTime, LocalDateTime.now()).getSeconds() + "s " + rockCount / STEPS_TO_DISPLAY + "x10^6: " + ((double) rockCount) / numberOfRocks * 100. + "% processed");
 			}
 			lastMovementIndex = RockMover.handleNewRock(rockCount, lastMovementIndex, cave, gasStreams);
-			final Optional<Map.Entry<Cycle, CycleValue>> cycleValue = cave.checkIfStateIsPresent(rockCount, RockType.values()[(int) (rockCount % RockType.values().length)], lastMovementIndex);
+			final long minHeight = cave.getOccupiedFields().stream().mapToLong(Coordinates::getY).min().getAsLong();
+			final Cycle cycle = new Cycle(lastMovementIndex, RockType.values()[(int) (rockCount % RockType.values().length)], cave.getOccupiedFields().stream()
+					.map(coordinates -> new Coordinates(coordinates.getX(), coordinates.getY() - minHeight))
+					.collect(Collectors.toSet()));
+			final Optional<Map.Entry<Cycle, CycleValue>> cycleValue = cave.checkIfStateIsPresent(cycle, rockCount);
 			if (cycleValue.isPresent()) {
 				final Map.Entry<Cycle, CycleValue> entry = cycleValue.get();
-				if (firstCycle == null) {
-					firstCycle = entry;
-				}
-				if (Objects.equals(firstCycle.getKey(), entry.getKey())) {
-					System.out.println(rockCount + " " + cave.getCurrentRockHeight());
+				cycleLength = rockCount - entry.getValue().getRockCount();
+				cycleIncrement = cave.getCurrentRockHeight() - entry.getValue().getCurrentHeight();
+				System.out.println("Rock count: " + rockCount + " height: " + cave.getCurrentRockHeight());
+				System.out.println("cycle length: " + cycleLength + ", cycle increment: " + cycleIncrement);
 
-				}
+				final long remainingRockCount = numberOfRocks - rockCount;
+				final long remainingCycles = remainingRockCount / cycleLength;
+
+				final long heightAfterCycles = cave.getCurrentRockHeight() + remainingCycles * cycleIncrement;
+				cave.getOccupiedFields().stream().forEach(coordinates -> coordinates.setY(coordinates.getY() - cave.getCurrentRockHeight() + heightAfterCycles));
+				rockCount = rockCount + remainingCycles * cycleLength;
+				System.out.println("remaining cycles were: " + remainingCycles + "\nnew height: " + heightAfterCycles);
+				System.out.println("new rockcount: " + rockCount);
 			}
 		}
-		printCave(cave);
-		System.out.println();
 
 	}
 
-	public static void printCave(Cave cave) {
-		for (long y = cave.getCurrentRockHeight() + 5; y >= 0; y--) {
-			for (int x = Cave.X_LEFT_BORDER; x <= Cave.X_RIGHT_BORDER; x++) {
-				final Coordinates currentCoordinate = new Coordinates(x, y);
-				if (x == Cave.X_LEFT_BORDER || x == Cave.X_RIGHT_BORDER) {
-					System.out.print("|");
-				} else if (cave.getOccupiedFields().contains(currentCoordinate)) {
-					System.out.print("#");
-				} else {
-					System.out.print(".");
-				}
-			}
-			System.out.println(y);
-		}
-	}
-
-	public static void printCave(Cave cave, Rock rock) {
-		for (long y = cave.getCurrentRockHeight() + 5; y >= 0; y--) {
-			for (int x = Cave.X_LEFT_BORDER; x <= Cave.X_RIGHT_BORDER; x++) {
-				final Coordinates currentCoordinate = new Coordinates(x, y);
-				if (x == Cave.X_LEFT_BORDER || x == Cave.X_RIGHT_BORDER) {
-					System.out.print("|");
-				} else if (cave.getOccupiedFields().contains(currentCoordinate)) {
-					System.out.print("#");
-				} else if (rock.getComponents().contains(currentCoordinate)) {
-					System.out.print("@");
-				} else {
-					System.out.print(".");
-				}
-			}
-			System.out.println(y);
-		}
-	}
 }

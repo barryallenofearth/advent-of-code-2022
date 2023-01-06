@@ -45,17 +45,17 @@ public class Cave {
 		return occupiedFields.stream().filter(coordinates -> coordinates.getX() == x).mapToLong(Coordinates::getY).max().orElse(-1);
 	}
 
-	public Optional<Map.Entry<Cycle, CycleValue>> checkIfStateIsPresent(long rockCount, RockType rockType, long lastMovementIndex) {
-		final long minHeight = occupiedFields.stream().mapToLong(Coordinates::getY).min().getAsLong();
-		final Cycle cycle = new Cycle(lastMovementIndex, rockType, occupiedFields.stream()
-				.map(coordinates -> new Coordinates(coordinates.getX(), coordinates.getY() - minHeight))
-				.collect(Collectors.toSet()));
+	public Optional<Map.Entry<Cycle, CycleValue>> checkIfStateIsPresent(Cycle cycle, long rockCount) {
+
 		final Optional<Map.Entry<Cycle, CycleValue>> cycleValue = knownStates.entrySet().stream().filter(entry -> entry.getKey().equals(cycle)).findFirst();
+		if (cycleValue.isPresent()) {
+			return cycleValue;
+		}
 		if (knownStates.size() < 2048) {
 			knownStates.put(cycle, new CycleValue(rockCount, currentRockHeight));
 		}
 
-		return cycleValue;
+		return Optional.empty();
 	}
 
 }
