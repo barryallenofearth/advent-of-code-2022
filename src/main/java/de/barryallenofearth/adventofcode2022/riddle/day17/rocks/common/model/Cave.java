@@ -14,15 +14,23 @@ public class Cave {
 
 	public static final int X_RIGHT_BORDER = 7;
 
+	public static final int NUMBER_OF_LINES = 100;
+
+	public static final int NUMBER_OF_REFRENCE_STATES = 2048;
+
 	private long currentRockHeight = -1;
 
 	private Set<Coordinates> occupiedFields = new HashSet<>();
 
-	private final Map<Cycle, CycleValue> knownStates = new HashMap<>(2048);
+	private final Map<Cycle, CycleValue> knownStates = new HashMap<>(NUMBER_OF_REFRENCE_STATES);
 
 	public void addRock(Rock shape) {
 		occupiedFields.addAll(shape.getComponents());
 
+		calculateHeightAndClean();
+	}
+
+	public void calculateHeightAndClean() {
 		final long[] minHeight = { Integer.MAX_VALUE };
 
 		currentRockHeight = 0;
@@ -37,7 +45,7 @@ public class Cave {
 		}
 
 		occupiedFields = occupiedFields.stream()
-				.filter(coordinates -> coordinates.getY() > minHeight[0] - 10)
+				.filter(coordinates -> coordinates.getY() > minHeight[0] - NUMBER_OF_LINES)
 				.collect(Collectors.toSet());
 	}
 
@@ -51,7 +59,7 @@ public class Cave {
 		if (cycleValue.isPresent()) {
 			return cycleValue;
 		}
-		if (knownStates.size() < 2048) {
+		if (knownStates.size() < NUMBER_OF_REFRENCE_STATES) {
 			knownStates.put(cycle, new CycleValue(rockCount, currentRockHeight));
 		}
 
